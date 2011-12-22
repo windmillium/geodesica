@@ -8,10 +8,10 @@ class JobQueueSpec extends Spec with ShouldMatchers {
   describe("findJob") {
     it("should return the first open job") {
       val queue = new JobQueue("findjob")
-      val mob = new Mobile
+      val mob = new Mobile(new MobileSpecies("test"))
       new FooJob(queue).owner = Some(mob)
       val job = new FooJob(queue)
-      expect(queue.findJob) {
+      expect(queue.findJob(mob.professions)) {
         Some(job)
       }
     }
@@ -23,7 +23,7 @@ class JobQueueSpec extends Spec with ShouldMatchers {
       val size = queue.openJobs.size
       new FooJob(queue)
       new FooJob(queue)
-      val ownedJob = new FooJob(queue).owner = Some(new Mobile)
+      val ownedJob = new FooJob(queue).owner = Some(new Mobile(new MobileSpecies("test")))
       expect(queue.openJobs.contains(ownedJob)) {
         false
       }

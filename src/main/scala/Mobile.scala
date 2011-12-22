@@ -27,31 +27,75 @@ trait Attackable {
 
 }
 
-class Mobile extends WithID[Mobile] with Attackable {
+class MobileSpecies(val name:String) {
+  def create = {
+    new Mobile(this)
+  }
+}
+
+class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
   var health = 100
+  var civilization:Civilization = _
   var block: Block = _
   var job: Option[Job] = None
   var queue: JobQueue = _
   var task: Option[Task] = None
   val objects = new ListBuffer[Object]
+  import collection.mutable.HashMap
+  val professions = new ListBuffer[String]
+  professions += "General"
+
   def getObject = Mobile
 
+  def fullfills(requirements:List[Requirement]) = {
+    unfullfilledObjects(requirements).size == 0
+  }
+
+  def unfullfilledObjects(requirements:List[Requirement]):List[ObjectTemplate] = {
+    requirements.filter(r => objects.filter(o=>o.template == r.objectTemplate).size == 0).map(r => r.objectTemplate)
+  }
+
+  def craft(recipe:Recipe) = {
+    objects += recipe.obj.create
+    recipe.requirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
+  }
+
+  def createProfessionJob = {
+    if(professions.contains("Crafting")) {
+      val job = new CraftJob(queue,civilization.recipes.head)
+      job.owner = Some(this)
+      this.job = Some(job)
+    } else if(professions.contains("Gardening")) {
+      if(Plant.all.filter(p => p.crop > 0).size > 0) {
+        val block = Plant.all.filter(p=>p.crop > 0).head.block
+        val job = new HarvestJob(this.queue)
+        job.block = block
+        this.job = Some(job)
+        job.owner = Some(this)
+      } else {
+        None
+      }
+    }
+    else
+      None
+  }
+
   def findJob = {
-    this.job = queue.findJob
+    this.job = queue.findJob(professions)
     this.job match {
       case Some(job) => {
         job.owner = Some(this)
       }
-      case _ => ()
+      case None => createProfessionJob
     }
   }
 
   def attack(target:Attackable) {
-    target.damage(5)
+    target.damage(25)
   }
 
   def build(target:Attackable) {
-    target.damage(-5)
+    target.damage(-25)
   }
 
   def die = ()
@@ -76,11 +120,6 @@ class Mobile extends WithID[Mobile] with Attackable {
     }
   }
 
-  def distanceFrom(nblock: Block): Double = {
-    import math._
-    sqrt(pow(block.x - nblock.x, 2) + pow(block.y - nblock.y,2))
-  }
-
   def moveTowards(nblock:Block) = {
     if(block.x > nblock.x)
       move(3)
@@ -94,19 +133,21 @@ class Mobile extends WithID[Mobile] with Attackable {
   }
 
   def move( direction: Int ) = {
-    val (x: Int, y: Int, z: Int) = direction match {
-      case 0 => (block.x,block.y+1,block.z)
-      case 1 => (block.x+1,block.y,block.z)
-      case 2 => (block.x,block.y-1,block.z)
-      case 3 => (block.x-1,block.y,block.z)
+    if(block != null){
+      val (x: Int, y: Int, z: Int) = direction match {
+        case 0 => (block.x,block.y+1,block.z)
+        case 1 => (block.x+1,block.y,block.z)
+        case 2 => (block.x,block.y-1,block.z)
+        case 3 => (block.x-1,block.y,block.z)
+      }
+
+      val newBlock = for {
+        newBlock <- WorldController.world.blockAt(x,y,z)
+        newBlock <- newBlock.canAccept(this)
+      } yield newBlock
+
+      moveTo(newBlock)
     }
-
-    val newBlock = for {
-      newBlock <- WorldController.world.blockAt(x,y,z)
-      newBlock <- newBlock.canAccept(this)
-    } yield newBlock
-
-    moveTo(newBlock)
   }
 
   def moveTo(newBlock: Option[Block]) = {
@@ -120,12 +161,27 @@ class Mobile extends WithID[Mobile] with Attackable {
     }
   }
 
+  def debugInfo:String = {
+    var str:String = ""
+    task match {
+      case Some(task) => str += "task is"+task
+      case None => str += "no task"
+    }
+    job match {
+      case Some(job) => str += "job: " + job
+      case None => str += "no job"
+    }
+    str += ", objects: "+objects
+    str
+  }
+
   def asJSON = {
     var str = "{"
     str += "\"id\":\""+id+"\","
     str += "\"x\":\""+block.x+"\","
     str += "\"y\":\""+block.y+"\","
-    str += "\"z\":\""+block.z+"\""
+    str += "\"z\":\""+block.z+"\","
+    str += "\"debug\":\""+debugInfo+"\""
     str += "}"
     str
   }

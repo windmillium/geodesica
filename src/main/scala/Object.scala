@@ -5,7 +5,39 @@ object Object extends WithIDObject[Object] {
     all.filter(_.block != null)
   }
 }
-class Object(var block:Block) extends WithID[Object] {
+
+class Object(val template:ObjectTemplate) extends WithID[Object] {
+  var block:Block = _
+
+  def name = template.name
+
   def getObject = Object
+
+  override def toString = {
+    var str = name+":"+id
+    if(block != null)
+      str += ",block:"+block
+    str
+  }
+
+  def toJson = {
+    import net.liftweb.json._
+    import net.liftweb.json.JsonDSL._
+
+    val json = ("name" -> name)
+    compact(render(json))
+  }
 }
 
+object ObjectTemplate extends WithIDObject[ObjectTemplate]
+class ObjectTemplate(val name:String) extends WithID[ObjectTemplate] {
+  def getObject = ObjectTemplate
+
+  def create = {
+    new Object(this)
+  }
+
+  override def toString = {
+    name
+  }
+}

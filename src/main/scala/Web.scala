@@ -36,12 +36,12 @@ class JobActor(queue: JobQueue) extends Actor with Consumer {
           case Some(block) => {
             job match {
               case "dig" => {
-                val njob = new DigJob(WorldController.world.queue)
+                val njob = new DigJob(queue)
                 njob.block = block
                 self.reply(njob.toJson)
               }
               case "build" => {
-                val njob = new BuildJob(WorldController.world.queue)
+                val njob = new BuildJob(queue)
                 njob.block = block
                 self.reply(njob.toJson)
               }
@@ -55,7 +55,7 @@ class JobActor(queue: JobQueue) extends Actor with Consumer {
   }
 }
 
-class BuildingActor extends Actor with Consumer {
+class BuildingTemplateActor extends Actor with Consumer {
   def endpointUri = "jetty:http://localhost:8888/templates"
 
   def receive = {
@@ -67,7 +67,7 @@ class BuildingActor extends Actor with Consumer {
       //   coords.get("width" ).getOrElse("20").asInstanceOf[String].toInt,
       //   coords.get("height").getOrElse("40").asInstanceOf[String].toInt
       // )
-      self.reply(Building.toJson)
+      self.reply(BuildingTemplate.toJson)
   }
 }
 class MyActor extends Actor with Consumer {
@@ -76,13 +76,19 @@ class MyActor extends Actor with Consumer {
   def receive = {
     case msg: Message =>
       if( msg.body != null ) {
+        import net.liftweb.json._
+        implicit val formats = DefaultFormats
+        var json = parse(msg.bodyAs[String])
+        val x = (json \\ "x").extract[Int]
+        val y = (json \\ "y").extract[Int]
+        val z = (json \\ "z").extract[Int]
+        val selected = (json \\ "selected").extract[Boolean]
+        val block = WorldController.world.blockAt(x,y,z)
+        block.get.selected = selected
+        println(selected)
         import cc.spray.json._
         import DefaultJsonProtocol._
         import MyJsonProtocol._
-        var json: String = msg.bodyAs[String]
-        println(json)
-        var jsonAst = JsonParser(json)
-        var block = jsonAst.fromJson[Block]
         self.reply(block.toJson)
       } else {
         var coords = msg.headers(Set("startx","starty","width","height"))

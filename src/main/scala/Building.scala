@@ -6,24 +6,24 @@ import cc.spray.json._
 import DefaultJsonProtocol._
 
 object BuildingJsonProtocol extends DefaultJsonProtocol {
-  implicit object BuildingFormat extends JsonFormat[Building] {
-    def write(b: Building) = JsObject(List(
+  implicit object BuildingTemplateFormat extends JsonFormat[BuildingTemplate] {
+    def write(b: BuildingTemplate) = JsObject(List(
         JsField("name", b.name)
     ))
     def read(value: JsValue) = {
-      new Building("test")
+      new BuildingTemplate("test")
     }
   }
 }
 
-class Building(val name: String) {
-  Building.templates += this
+class BuildingTemplate(val name: String) {
+  BuildingTemplate.templates += this
 }
 
-object Building {
-  val templates = new ListBuffer[Building]
+object BuildingTemplate {
+  val templates = new ListBuffer[BuildingTemplate]
 
-  new Building("storage")
+  new BuildingTemplate("storage")
 
   def toJson = {
     import BuildingJsonProtocol._
