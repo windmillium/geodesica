@@ -6,13 +6,16 @@ object Object extends WithIDObject[Object] {
   }
 }
 
-class Object(val template:ObjectTemplate) extends WithID[Object] {
+class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[Object] with Attackable {
   var block:Block = _
 
   def name = template.name
 
   def getObject = Object
 
+  def die = {
+    
+  }
   override def toString = {
     var str = name+":"+id
     if(block != null)
