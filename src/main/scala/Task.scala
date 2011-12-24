@@ -35,6 +35,26 @@ class AttackTask(target:Attackable) extends Task {
   }
 }
 
+class CraftTask(obj:Object) extends Task {
+  def nextStep(mobile:Mobile) = {
+    mobile.craft(obj)
+    if(obj.health < 100)
+      Some(this)
+    else
+      None
+  }
+}
+
+class ClearTask(plant:Plant) extends Task {
+  def nextStep(mobile:Mobile) = {
+    mobile.clear(plant)
+    if(plant.health < 1)
+      None
+    else
+      Some(this)
+  }
+}
+
 class HarvestTask(plant:Plant) extends Task {
   def nextStep(mobile:Mobile) = {
     if(plant.crop > 0) {
