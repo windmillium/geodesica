@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 object Object extends WithIDObject[Object] {
   def availableObjects = {

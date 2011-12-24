@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 import akka.actor.{Actor, ActorRef}
 import akka.camel.{Message, Consumer}

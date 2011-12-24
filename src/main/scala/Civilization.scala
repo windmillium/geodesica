@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 import collection.mutable.ListBuffer
 

@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 class Requirement(val objectTemplate:ObjectTemplate) {
   override def toString = {

@@ -3,7 +3,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.BeforeAndAfterAll
 import scala.collection.mutable.ListBuffer
 
-import world._
+import net.geodesica._
 
 class PlantSpec extends Spec with ShouldMatchers with BeforeAndAfterAll {
   describe("Class") {

@@ -1,7 +1,7 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
 
-import world._
+import net.geodesica._
 import TimeWrapper._
 
 class TimeSpec extends Spec with ShouldMatchers {

@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 object Plant extends WithIDObject[Plant] {
   def update = {

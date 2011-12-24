@@ -2,7 +2,7 @@
 * Can search for a shortest path between two nodes of type T that are subtypes of Searchable[T].
 * Searchable[T] must provide several functions that are required for a-star.
 */
-package world
+package net.geodesica
 
 import scala.collection.immutable.TreeSet
 import scala.collection.SortedSet

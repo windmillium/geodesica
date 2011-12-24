@@ -1,7 +1,7 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
 
-import world._
+import net.geodesica._
 
 class WithIDSpec extends Spec with ShouldMatchers {
   object Foo extends WithIDObject[Foo]

@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 import scala.collection.mutable.ListBuffer
 
 import cc.spray.json._

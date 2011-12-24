@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 trait WithID[A] {
   self: A =>

@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 class IntWrapper(i:Int) {
   def milliseconds = i

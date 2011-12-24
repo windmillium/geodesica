@@ -1,7 +1,7 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
 
-import world._
+import net.geodesica._
 
 class MobileSpec extends Spec with ShouldMatchers {
   class FooJob(queue:JobQueue) extends Job(queue) with WithID[Job]

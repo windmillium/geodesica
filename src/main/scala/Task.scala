@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 trait Task {
   def nextStep(mobile:Mobile):Option[Task]

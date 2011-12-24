@@ -1,4 +1,4 @@
-package world
+package net.geodesica
 
 class Job(queue: JobQueue, val profession:String = "General") {
   var block: Block = _
