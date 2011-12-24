@@ -6,9 +6,10 @@ object Plant extends WithIDObject[Plant] {
   }
 }
 
-class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] {
+class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] with Attackable {
   var age: Int = 0
   var crop: Int = 1
+  var health = 100
   def cropTemplate = species.cropTemplate
   def getObject = Plant
 
@@ -16,6 +17,10 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] {
     age += 1
     if(age % 1000 == 0)
       crop += 1
+  }
+
+  def die = {
+    block.plant = null
   }
 }
 
