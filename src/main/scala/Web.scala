@@ -85,11 +85,7 @@ class MyActor extends Actor with Consumer {
         val selected = (json \\ "selected").extract[Boolean]
         val block = WorldController.world.blockAt(x,y,z)
         block.get.selected = selected
-        println(selected)
-        import cc.spray.json._
-        import DefaultJsonProtocol._
-        import MyJsonProtocol._
-        self.reply(block.toJson)
+        self.reply(block.get.toJson)
       } else {
         var coords = msg.headers(Set("startx","starty","width","height"))
         var viewport = (
