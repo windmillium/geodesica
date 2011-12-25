@@ -11,6 +11,7 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] wit
   var crop: Int = 1
   var health = 100
   def cropTemplate = species.cropTemplate
+  def deathTemplate = species.deathTemplate
   def getObject = Plant
 
   def update = {
@@ -21,11 +22,11 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] wit
 
   def die = {
     block.plant = null
+    block.objects += deathTemplate.create
   }
 }
 
-class PlantSpecies(name:String) {
-  var cropTemplate:ObjectTemplate = _
+class PlantSpecies(val name:String, val cropTemplate:ObjectTemplate, val deathTemplate:ObjectTemplate) {
   def create(block:Block) = {
     new Plant(this,block)
   }
