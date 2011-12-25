@@ -72,7 +72,7 @@ class World( val height: Int, val depth: Int = 1) {
         for( x <- 0 until width ) {
           val index = indexFor(x,y,z)
           val health = if( x < width/2 ) 0; else 100;
-          map += ( (x,y,z) -> new Block(x,y,z,health, ObjectTemplate.all.head))
+          map += ( (x,y,z) -> new Block(this,x,y,z,health, ObjectTemplate.all.head))
         }
       }
     }
@@ -81,11 +81,14 @@ class World( val height: Int, val depth: Int = 1) {
   }
 
   def seedPlantsAndAnimals() = {
+    wilderness.home = blockAt(0,0,0).get
+    player.home = blockAt(width/4,height/2,0).get
 
     val rnd = new scala.util.Random
 
-    val tree = new PlantSpecies("tree")
-    tree.cropTemplate = new ObjectTemplate("Stick")
+    val cot = new ObjectTemplate("Stick")
+    val dot = new ObjectTemplate("Wood")
+    val tree = new PlantSpecies("tree",cot,dot)
 
     for(block <- map if(rnd.nextInt(100) > 85 && block._2.health == 0)) {
       val plant = tree.create(block._2)
@@ -94,7 +97,6 @@ class World( val height: Int, val depth: Int = 1) {
 
     val human = new MobileSpecies("human")
     val deer = new MobileSpecies("deer")
-    val centerBlock = blockAt(width/4,height/2,0).get
     var x = 10
     while(x > 0) {
       val mob = human.create
@@ -106,11 +108,13 @@ class World( val height: Int, val depth: Int = 1) {
         mob.professions += "GGardening"
       if(x == 7)
         mob.professions += "Crafting"
+      if(x == 6)
+        mob.professions += "WoodWorking"
 
       mob.civilization = player
       mob.queue = player.queue
-      mob.block = centerBlock
-      centerBlock.mobiles += mob
+      mob.block = player.home
+      player.home.mobiles += mob
       x -= 1
     }
     x = 5
@@ -118,8 +122,8 @@ class World( val height: Int, val depth: Int = 1) {
       val mob = deer.create
       mob.civilization = wilderness
       mob.queue = wilderness.queue
-      mob.block = centerBlock
-      centerBlock.mobiles += mob
+      mob.block = wilderness.home
+      wilderness.home.mobiles += mob
       x -= 1
     }
 
@@ -150,7 +154,13 @@ class World( val height: Int, val depth: Int = 1) {
   def loadObjectTemplates = {
     val rubble = new ObjectTemplate("Rubble")
     val rh = new ObjectTemplate("Rock Hammer")
-    player.recipes += new Recipe(rh, List(new Requirement(rubble)))
+    val drh = new ObjectTemplate("Double Rock Hammer")
+
+    val requirement = new Requirement(-1,List(new ConsumableRequirement(rubble)))
+    player.recipes += new Recipe(rh, requirement)
+
+    val drhRequirements = new Requirement(-1,List(new ConsumableRequirement(rh)),List(new InventoryRequirement(rh)))
+    player.recipes += new Recipe(drh, drhRequirements)
   }
 
   def asJSON(startX: Int,startY: Int, width:Int,height:Int): String = {
