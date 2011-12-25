@@ -58,6 +58,10 @@ class World( val height: Int, val depth: Int = 1) {
     x + y * width + z * width * height
   }
 
+  def near(block:Block,distance:Int) = {
+    map.filterKeys({case(x,y,z) => x < block.x+distance && x > block.x-distance && y < block.y+distance && y > block.y-distance})
+  }
+
   def blockAt( x : Int, y : Int, z : Int ): Option[Block] = {
     return map.get((x,y,z))
   }
