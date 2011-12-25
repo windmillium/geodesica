@@ -47,24 +47,40 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
 
   def getObject = Mobile
 
-  def fullfills(requirements:List[Requirement]) = {
-    unfullfilledObjects(requirements).size == 0
+  def fullfills(requirements:Requirement) = {
+    unfullfilledObjects(requirements.consumableRequirements).size == 0 &&
+    unfullfilledObjects(requirements.inventoryRequirements).size == 0
   }
 
-  def unfullfilledObjects(requirements:List[Requirement]):List[ObjectTemplate] = {
+  def unfullfilledObjects(requirements:List[ObjectRequirement]):List[ObjectTemplate] = {
     requirements.filter(r => objects.filter(o=>o.template == r.objectTemplate).size == 0).map(r => r.objectTemplate)
   }
 
-  def craft(recipe:Recipe) = {
-    objects += recipe.obj.create
-    recipe.requirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
+  def craftInitial(recipe:Recipe) = {
+    val obj = recipe.obj.create
+    objects += obj
+    obj.health = 0
+    recipe.requirements.consumableRequirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
+    obj
   }
 
   def createProfessionJob = {
     if(professions.contains("Crafting")) {
-      val job = new CraftJob(queue,civilization.recipes.head)
-      job.owner = Some(this)
-      this.job = Some(job)
+      var recipe:Option[Recipe] = None
+      var i = 0
+      while( recipe == None && i < civilization.recipes.size) {
+        if( objects.filter(o => o.template == civilization.recipes.apply(i).obj ).size == 0)
+          recipe = Some(civilization.recipes.apply(i))
+        i += 1
+      }
+
+      if( recipe != None ) {
+        val job = new CraftJob(queue,recipe.get)
+        job.owner = Some(this)
+        this.job = Some(job)
+      } else {
+        None
+      }
     } else if(professions.contains("Gardening")) {
       if(Plant.all.filter(p => p.crop > 0).size > 0) {
         val block = Plant.all.filter(p=>p.crop > 0).head.block
@@ -75,6 +91,9 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
       } else {
         None
       }
+    } else if(professions.contains("WoodWorking")) {
+      val blocks = WorldController.world.near(civilization.home,10)
+      blocks.filter({case(coords,block)=>block.plant != null}).foreach(b => new ClearJob(queue).block = b._2)
     }
     else
       None
@@ -90,12 +109,20 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
     }
   }
 
+  def craft(obj:Attackable) {
+    obj.damage(-25)
+  }
+
   def attack(target:Attackable) {
     target.damage(25)
   }
 
   def build(target:Attackable) {
     target.damage(-25)
+  }
+
+  def clear(plant:Plant) {
+    plant.damage(10)
   }
 
   def die = ()
@@ -110,13 +137,31 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
           case None => {
             findJob
             val rnd = new scala.util.Random
-            this.move(rnd.nextInt(4))
+            val x = rnd.nextInt(10) - 5
+            val y = rnd.nextInt(10) - 5
+            val block = WorldController.world.blockAt(civilization.home.x+x,civilization.home.y+y,0)
+            if(block != None && this.job == None)
+              this.task = Some(new MoveToTask(this,block.get,0))
           }
           case Some(job) => {
-            this.task = job.nextTask
+            this.task = nextTaskFor(job)
           }
         }
       }
+    }
+  }
+
+  def nextTaskFor(job:Job) = {
+    if( job.finished ) {
+      job.queue.all -= job
+      this.job = None
+      None
+    } else if(unfullfilledObjects(job.requirements.consumableRequirements).size > 0) {
+      Some(new FindObjectTask(unfullfilledObjects(job.requirements.consumableRequirements).head))
+    } else if( job.requirements.distance >= 0 && block.distanceFrom(job.block) > job.requirements.distance) {
+      Some(new MoveToTask(this,job.block,job.requirements.distance))
+    } else {
+      job.finalTask
     }
   }
 
