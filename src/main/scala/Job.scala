@@ -1,11 +1,12 @@
 package net.geodesica
 
-class Job(queue: JobQueue, val profession:String = "General") {
+class Job(val queue: JobQueue, val profession:String = "General", val requirements:Requirement = new Requirement) {
   var block: Block = _
   var owner: Option[Mobile] = None
   def getObject = queue
   def work = ()
-  def nextTask:Option[Task] = None
+  def finalTask:Option[Task] = None
+  def finished = false
 
   def toJson = {
     import net.liftweb.json._
@@ -37,31 +38,33 @@ class JobQueue(name:String) extends WithIDObject[Job] {
   }
 }
 
-class HarvestJob(queue:JobQueue) extends Job(queue, "Gardening") with WithID[Job] {
-  override def nextTask = {
-    if(owner.get.block.distanceFrom(block) >= 1)
-      Some(new MoveToTask(owner.get,block,1))
-    else if(block.plant.crop >0)
-      Some(new HarvestTask(block.plant))
-    else {
-      queue.all -= this
-      owner.get.job = None
-      None
-    }
+class HarvestJob(queue:JobQueue) extends Job(queue, "Gardening", new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    block.plant.crop == 0
+  }
+  override def finalTask = {
+    Some(new HarvestTask(block.plant))
   }
 }
 
-class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting") with WithID[Job] {
-  override def nextTask = {
-    if( owner.get.fullfills(recipe.requirements)) {
-      owner.get.craft(recipe)
-      owner.get.job = None
-      queue.all -= this
-      None
-    } else {
-      println("doesn't fullfill")
-      Some(new FindObjectTask(owner.get.unfullfilledObjects(recipe.requirements).head))
-    }
+class ClearJob(queue:JobQueue) extends Job(queue, "WoodWorking", new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    block.plant == null
+  }
+
+  override def finalTask = {
+    Some(new ClearTask(block.plant))
+  }
+}
+
+class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting", recipe.requirements) with WithID[Job] {
+  var newObject:Object = _
+  override def finished = {
+    newObject != null && newObject.health == 100
+  }
+  override def finalTask = {
+    newObject = owner.get.craftInitial(recipe)
+    Some(new CraftTask(newObject))
   }
 
   override def toString = {
@@ -69,38 +72,20 @@ class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting") wit
   }
 }
 
-class DigJob(queue:JobQueue) extends Job(queue, "Mining") with WithID[Job] {
-  override def nextTask = {
-    val task:Option[Task] = if(owner.get.block.distanceFrom(block) >= 2)
-      Some(new MoveToTask(owner.get,block,2))
-    else if(block.health > 0)
-      Some(new AttackTask(block))
-    else {
-      queue.all -= this
-      owner.get.job = None
-      None
-    }
-    task
+class DigJob(queue:JobQueue) extends Job(queue, "Mining", new Requirement(2)) with WithID[Job] {
+  override def finished:Boolean = {
+    block.health == 0
+  }
+  override def finalTask = {
+    Some(new AttackTask(block))
   }
 }
 
-class BuildJob(queue:JobQueue) extends Job(queue, "Building") with WithID[Job] {
-  override def nextTask = {
-    val task:Option[Task] =
-      if(block.health == 100) {
-        queue.all -= this
-        owner.get.job = None
-        None
-      } else if(owner.get.objects.size < 1) {
-        Object.availableObjects.headOption match {
-          case Some(obj) => { Some(new FindObjectTask(obj.template)) }
-          case None => { None }
-        }
-      }
-      else if(owner.get.block.distanceFrom(block) >= 2) {
-        Some(new MoveToTask(owner.get,block,2))}
-      else
-        Some(new BuildTask(block))
-    task
+class BuildJob(queue:JobQueue) extends Job(queue, "Building", new Requirement(2)) with WithID[Job] {
+  override def finished = {
+    block.health == 100
+  }
+  override def finalTask = {
+    Some(new BuildTask(block))
   }
 }
