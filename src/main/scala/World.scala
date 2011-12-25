@@ -12,7 +12,8 @@ object WorldController {
     //   sys.exit(0)
     // }
     // world = new World(args(0).toInt)
-    world = new World(15)
+    world = new World(30)
+    world.startWeb
     var x : Int = 1
     while( x != 0 ) {
       world.update
@@ -36,20 +37,22 @@ class World( val height: Int, val depth: Int = 1) {
   createWorld
   seedPlantsAndAnimals
 
-  import akka.camel.CamelServiceManager._
-  import akka.actor.{Actor,ActorRef}
+  def startWeb = {
+    import akka.camel.CamelServiceManager._
+    import akka.actor.{Actor,ActorRef}
 
-  startCamelService
+    startCamelService
 
-  val mobileActor = Actor.actorOf[MobileActor]
-  val myActor = Actor.actorOf[MyActor]
-  val templateActor = Actor.actorOf[BuildingTemplateActor]
-  val jobActor = Actor.actorOf(new JobActor(player.queue))
+    val mobileActor = Actor.actorOf[MobileActor]
+    val myActor = Actor.actorOf[MyActor]
+    val templateActor = Actor.actorOf[BuildingTemplateActor]
+    val jobActor = Actor.actorOf(new JobActor(player.queue))
 
-  mobileActor.start
-  myActor.start
-  templateActor.start
-  jobActor.start
+    mobileActor.start
+    myActor.start
+    templateActor.start
+    jobActor.start
+  }
 
   def indexFor( x : Int, y : Int, z : Int ) = {
     x + y * width + z * width * height
