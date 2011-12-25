@@ -23,7 +23,7 @@ class MobileSpec extends Spec with ShouldMatchers {
       import collection.mutable.ListBuffer
       val mob = new Mobile(new MobileSpecies("test"))
       val ot = new ObjectTemplate("Rubble")
-      val requirements = List(new Requirement(ot))
+      val requirements = List(new ConsumableRequirement(ot))
       expect(mob.unfullfilledObjects(requirements)) {
         List(ot)
       }
@@ -34,7 +34,7 @@ class MobileSpec extends Spec with ShouldMatchers {
       val mob = new Mobile(new MobileSpecies("test"))
       val ot = new ObjectTemplate("Rubble")
       mob.objects += ot.create
-      val requirements = List(new Requirement(ot))
+      val requirements = List(new ConsumableRequirement(ot))
       expect(mob.unfullfilledObjects(requirements)) {
         List()
       }

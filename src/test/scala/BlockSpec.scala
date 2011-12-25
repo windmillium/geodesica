@@ -3,20 +3,44 @@ import org.scalatest.matchers.ShouldMatchers
 
 import net.geodesica._
 
-// class BlockSpec extends Spec with ShouldMatchers {
-//   describe("Class") {
-//     it("should have a spot for a plant") {
-//       val block = new Block
-//       val plant = new Plant
-//       block.plant = plant
-//       block.plant should equal(plant)
-//     }
+class BlockSpec extends Spec {
+  describe("heuristic") {
+    it("should measure the distance from the target block"){
+      val block1 = new Block(0,0,0)
+      val block2 = new Block(3,20,0)
+      expect(block1.distanceFrom(block2).toInt){
+        block1.heuristic(block2)
+      }
+    }
+  }
 
-//     it("should have a list of mobiles") {
-//       val block = new Block
-//       val mob = new Mobile
-//       block.mobiles += mob
-//       block.mobiles.size should equal(1)
-//     }
-//   }
-// }
+  describe("adjacent"){
+    it("should return the cardinal direction blocks which are open"){
+      val world = new World(3)
+      val block1 = world.blockAt(1,0,0).get
+      val block2 = world.blockAt(1,2,0).get
+      block1.health = 0
+      block2.health = 0
+      expect(List(block1,block2)){
+        world.blockAt(1,1,0).get.adjacent
+      }
+    }
+  }
+
+  describe("canAccept"){
+    it("should return None if health > 0"){
+      val block = new Block(0,0,0)
+      block.health = 1
+      expect(None){
+        block.canAccept
+      }
+    }
+    it("should return Some(block) if health = 0"){
+      val block = new Block(0,0,0)
+      block.health = 0
+      expect(Some(block)){
+        block.canAccept
+      }
+    }
+  }
+}
