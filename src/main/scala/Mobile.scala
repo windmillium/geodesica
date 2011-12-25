@@ -188,7 +188,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
 
       val newBlock = for {
         newBlock <- WorldController.world.blockAt(x,y,z)
-        newBlock <- newBlock.canAccept(this)
+        newBlock <- newBlock.canAccept
       } yield newBlock
 
       moveTo(newBlock)
