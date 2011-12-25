@@ -1,12 +1,33 @@
 package net.geodesica
 
-class Requirement(val objectTemplate:ObjectTemplate) {
+class Requirement(
+  val distance:Int = -1,
+  val consumableRequirements:List[ConsumableRequirement] = List(),
+  val inventoryRequirements:List[InventoryRequirement] = List()
+) {
+
   override def toString = {
-    "Requirement: "+objectTemplate.toString
+    "Requires: "+consumableRequirements+", "+inventoryRequirements
   }
 }
 
-class Recipe(val obj:ObjectTemplate, val requirements:List[Requirement]) {
+trait ObjectRequirement {
+  def objectTemplate:ObjectTemplate
+}
+
+class ConsumableRequirement(val objectTemplate:ObjectTemplate) extends ObjectRequirement {
+  override def toString = {
+    "ConsumableRequirement: "+objectTemplate
+  }
+}
+
+class InventoryRequirement(val objectTemplate:ObjectTemplate) extends ObjectRequirement {
+  override def toString = {
+    "InventoryRequirement: "+objectTemplate
+  }
+}
+
+class Recipe(val obj:ObjectTemplate, val requirements:Requirement) {
   override def toString = {
     "Recipe: " +obj+", Requires: "+requirements
   }
