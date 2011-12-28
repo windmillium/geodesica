@@ -136,13 +136,15 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
         this.job match {
           case None => {
             findJob
-            val rnd = new scala.util.Random
-            val x = rnd.nextInt(10) - 5
-            val y = rnd.nextInt(10) - 5
-            val newCoord = block.coord+(x,y,0)
-            val tBlock = WorldController.world.blockAt(newCoord)
-            if(tBlock != None && this.job == None)
-              this.task = Some(new MoveToTask(this,tBlock.get,0))
+            if(block != null) {
+              val rnd = new scala.util.Random
+              val x = rnd.nextInt(10) - 5
+              val y = rnd.nextInt(10) - 5
+              val newCoord = block.coord+(x,y,0)
+              val tBlock = block.blockAt(newCoord)
+              if(tBlock != None && this.job == None)
+                this.task = Some(new MoveToTask(this,tBlock.get,0))
+            }
           }
           case Some(job) => {
             this.task = nextTaskFor(job)
@@ -189,7 +191,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
       val nCoord = block.coord + add
 
       val newBlock = for {
-        newBlock <- WorldController.world.blockAt(nCoord)
+        newBlock <- block.blockAt(nCoord)
         newBlock <- newBlock.canAccept
       } yield newBlock
 

@@ -19,7 +19,7 @@ class MobileActor extends Actor with Consumer {
   }
 }
 
-class JobActor(queue: JobQueue) extends Actor with Consumer {
+class JobActor(queue: JobQueue, blockMap:BlockMap ) extends Actor with Consumer {
   def endpointUri = "jetty:http://localhost:8888/jobs"
 
   def receive = {
@@ -32,7 +32,7 @@ class JobActor(queue: JobQueue) extends Actor with Consumer {
         val y = (json \\ "y").extract[Int]
         val z = (json \\ "z").extract[Int]
         val job = (json \\ "job").extract[String]
-        WorldController.world.blockAt(new Coord(x,y,z)) match {
+        blockMap.blockAt(new Coord(x,y,z)) match {
           case Some(block) => {
             job match {
               case "dig" => {
@@ -70,7 +70,7 @@ class BuildingTemplateActor extends Actor with Consumer {
       self.reply(BuildingTemplate.toJson)
   }
 }
-class MyActor extends Actor with Consumer {
+class BlockMapActor(blockMap:BlockMap) extends Actor with Consumer {
   def endpointUri = "jetty:http://localhost:8888/map"
 
   def receive = {
@@ -83,7 +83,7 @@ class MyActor extends Actor with Consumer {
         val y = (json \\ "y").extract[Int]
         val z = (json \\ "z").extract[Int]
         val selected = (json \\ "selected").extract[Boolean]
-        val block = WorldController.world.blockAt(new Coord(x,y,z))
+        val block = blockMap.blockAt(new Coord(x,y,z))
         block.get.selected = selected
         self.reply(block.get.toJson)
       } else {
@@ -94,7 +94,7 @@ class MyActor extends Actor with Consumer {
           coords.get("width" ).getOrElse("20").asInstanceOf[String].toInt,
           coords.get("height").getOrElse("40").asInstanceOf[String].toInt
         )
-        self.reply(WorldController.asJSON(viewport._1,viewport._2,viewport._3,viewport._4))
+        self.reply(blockMap.asJSON(viewport._1,viewport._2,viewport._3,viewport._4))
       }
   }
 }

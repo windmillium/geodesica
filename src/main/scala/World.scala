@@ -20,21 +20,34 @@ object WorldController {
       Thread.sleep(250)
     }
   }
+}
 
-  def asJSON(startX: Int, startY: Int, width:Int,height:Int) = {
-    world.asJSON(startX,startY,width,height)
+class BlockMap {
+  val blocks = HashMap.empty[(Int,Int,Int), Block]
+
+  def blockAt(coord:Coord): Option[Block] = {
+    return blocks.get((coord.x,coord.y,coord.z))
+  }
+
+  def asJSON(startX: Int,startY: Int, width:Int,height:Int): String = {
+    var js : String = "["
+    js += blocks.
+      filterKeys({b => b._1 >= startX && b._2 >= startY && b._1 < startX+width && b._2 < startY+height}).
+      map( w => w._2.toJson).mkString(",").asInstanceOf[String]
+    js += "]"
+    return js
   }
 }
 
 class World( val height: Int, val depth: Int = 1) {
   val width = height * 2
-  val map = HashMap.empty[(Int,Int,Int), Block]
+  val blockMap = new BlockMap
 
   val player = new Civilization("Player")
   val wilderness = new Civilization("Wilderness")
 
   loadObjectTemplates
-  createWorld
+  createWorld(20,40,1)
   seedPlantsAndAnimals
 
   def startWeb = {
@@ -44,45 +57,37 @@ class World( val height: Int, val depth: Int = 1) {
     startCamelService
 
     val mobileActor = Actor.actorOf[MobileActor]
-    val myActor = Actor.actorOf[MyActor]
+    val blockActor = Actor.actorOf(new BlockMapActor(blockMap))
     val templateActor = Actor.actorOf[BuildingTemplateActor]
-    val jobActor = Actor.actorOf(new JobActor(player.queue))
+    val jobActor = Actor.actorOf(new JobActor(player.queue, blockMap))
 
     mobileActor.start
-    myActor.start
+    blockActor.start
     templateActor.start
     jobActor.start
   }
 
-  def indexFor( x : Int, y : Int, z : Int ) = {
-    x + y * width + z * width * height
-  }
-
   def near(block:Block,distance:Int) = {
-    map.filterKeys({case(x,y,z) => x < block.coord.x+distance && x > block.coord.x-distance && y < block.coord.y+distance && y > block.coord.y-distance})
+    blockMap.blocks.filterKeys({case(x,y,z) => x < block.coord.x+distance && x > block.coord.x-distance && y < block.coord.y+distance && y > block.coord.y-distance})
   }
 
-  def blockAt(coord:Coord): Option[Block] = {
-    return map.get((coord.x,coord.y,coord.z))
-  }
-
-  def createWorld = {
+  def createWorld(width:Int,height:Int,depth:Int) = {
     for( z <- 0 until depth ) {
       for( y <- 0 until height ) {
         for( x <- 0 until width ) {
-          val index = indexFor(x,y,z)
           val health = if( x < width/2 ) 0; else 100;
-          map += ( (x,y,z) -> new Block(new Coord(x,y,z),health, ObjectTemplate.all.head))
+          new Block(blockMap, new Coord(x,y,z),health, ObjectTemplate.all.head)
         }
       }
     }
 
-    println("Total size: %s".format(map.size))
+    println("Total size: %s".format(blockMap.blocks.size))
   }
 
+
   def seedPlantsAndAnimals() = {
-    wilderness.home = blockAt(new Coord(0,0,0)).get
-    player.home = blockAt(new Coord(width/4,height/2,0)).get
+    wilderness.home = blockMap.blockAt(new Coord(0,0,0)).get
+    player.home = blockMap.blockAt(new Coord(width/4,height/2,0)).get
 
     val rnd = new scala.util.Random
 
@@ -90,7 +95,7 @@ class World( val height: Int, val depth: Int = 1) {
     val dot = new ObjectTemplate("Wood")
     val tree = new PlantSpecies("tree",cot,dot)
 
-    for(block <- map if(rnd.nextInt(100) > 85 && block._2.health == 0)) {
+    for(block <- blockMap.blocks if(rnd.nextInt(100) > 85 && block._2.health == 0)) {
       val plant = tree.create(block._2)
       block._2.plant = plant
     }
@@ -135,7 +140,7 @@ class World( val height: Int, val depth: Int = 1) {
   var path:List[Block] = _
   def update = {
     Plant.update
-    var selected = map.filter({b => b._2.selected == true})
+    var selected = blockMap.blocks.filter({b => b._2.selected == true})
     if(selected.size == 2) {
       val search = new AStarSearch[Block]
       path = search.search(selected.head._2, selected.last._2)
@@ -163,13 +168,5 @@ class World( val height: Int, val depth: Int = 1) {
     player.recipes += new Recipe(drh, drhRequirements)
   }
 
-  def asJSON(startX: Int,startY: Int, width:Int,height:Int): String = {
-    var js : String = "["
-    js += map.
-      filterKeys({b => b._1 >= startX && b._2 >= startY && b._1 < startX+width && b._2 < startY+height}).
-      map( w => w._2.toJson).mkString(",").asInstanceOf[String]
-    js += "]"
-    return js
-  }
 }
 

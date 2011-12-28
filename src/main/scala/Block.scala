@@ -14,7 +14,8 @@ case class Coord(x:Int,y:Int,z:Int) {
   }
 }
 
-class Block(val coord:Coord,
+class Block(val blockMap:BlockMap,
+            val coord:Coord,
             var health: Int = 100,
             val objectTemplate:ObjectTemplate = new ObjectTemplate("Generic Item"))
 extends Attackable
@@ -28,21 +29,24 @@ extends Attackable
 
   val classes = new HashSet[String]
 
+  blockMap.blocks += ((coord.x,coord.y,coord.z) -> this)
+
+  def blockAt(coord:Coord) = blockMap.blockAt(coord)
   def north = {
     val newCoord = coord + (0,1,0)
-    WorldController.world.blockAt(newCoord)
+    blockAt(newCoord)
   }
   def east = {
     val newCoord = coord + (1,0,0)
-    WorldController.world.blockAt(newCoord)
+    blockAt(newCoord)
   }
   def south = {
     val newCoord = coord + (0,-1,0)
-    WorldController.world.blockAt(newCoord)
+    blockAt(newCoord)
   }
   def west = {
     val newCoord = coord + (-1,0,0)
-    WorldController.world.blockAt(newCoord)
+    blockAt(newCoord)
   }
 
   def allClasses = {
