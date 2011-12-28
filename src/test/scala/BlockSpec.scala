@@ -3,6 +3,24 @@ import org.scalatest.matchers.ShouldMatchers
 
 import net.geodesica._
 
+class CoordSpec extends Spec {
+  describe("distanceFrom") {
+    it("should return the distance between two coords") {
+      expect(true){
+        math.abs(new Coord(2,0,1).distanceFrom(new Coord(3,20,0))-20.04) < 0.01
+      }
+    }
+  }
+
+  describe("addition") {
+    it("should add the coords and return a new coord") {
+      expect(new Coord(2,4,6)){
+        new Coord(1,2,3) + (1,2,3)
+      }
+    }
+  }
+}
+
 class BlockSpec extends Spec {
   describe("heuristic") {
     it("should measure the distance from the target block"){

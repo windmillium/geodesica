@@ -10,7 +10,7 @@ case class Coord(x:Int,y:Int,z:Int) {
 
   def distanceFrom(target: Coord): Double = {
     import math._
-    sqrt(pow(x - target.x, 2) + pow(y - target.y,2))
+    sqrt(pow(x - target.x, 2) + pow(y - target.y,2) + pow(z - target.z,2))
   }
 }
 
