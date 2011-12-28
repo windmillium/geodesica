@@ -167,7 +167,7 @@ class World( val height: Int, val depth: Int = 1) {
     var js : String = "["
     js += map.
       filterKeys({b => b._1 >= startX && b._2 >= startY && b._1 < startX+width && b._2 < startY+height}).
-      map( w => w._2.json).mkString(",").asInstanceOf[String]
+      map( w => w._2.toJson).mkString(",").asInstanceOf[String]
     js += "]"
     return js
   }

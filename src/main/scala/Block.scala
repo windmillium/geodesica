@@ -67,9 +67,6 @@ class Block(val world:World, val x: Int, val y: Int, val z: Int, var health: Int
     }
   }
 
-  def json = {
-    this.toJson
-  }
   def toJson = {
     import net.liftweb.json._
     import net.liftweb.json.JsonDSL._
