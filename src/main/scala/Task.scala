@@ -69,7 +69,6 @@ class HarvestTask(plant:Plant) extends Task {
 class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
   var path = (new AStarSearch[Block]).search(block,mobile.block)
 
-
   def nextStep(mobile:Mobile):Option[Task] = {
 
     if(path == null || path.size == 0) {
@@ -79,14 +78,14 @@ class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
     val dblock = path.last
     path = path.dropRight(1)
 
-    if(mobile.block.x > dblock.x)
+    if(mobile.block.coord.x > dblock.coord.x)
       mobile.move(3)
-    else if(mobile.block.x < dblock.x)
+    else if(mobile.block.coord.x < dblock.coord.x)
       mobile.move(1)
 
-    if(mobile.block.y > dblock.y)
+    if(mobile.block.coord.y > dblock.coord.y)
       mobile.move(2)
-    else if(mobile.block.y < dblock.y)
+    else if(mobile.block.coord.y < dblock.coord.y)
       mobile.move(0)
 
     if(mobile.block.distanceFrom(block) >= distance)

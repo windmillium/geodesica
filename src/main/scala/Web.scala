@@ -32,7 +32,7 @@ class JobActor(queue: JobQueue) extends Actor with Consumer {
         val y = (json \\ "y").extract[Int]
         val z = (json \\ "z").extract[Int]
         val job = (json \\ "job").extract[String]
-        WorldController.world.blockAt(x,y,z) match {
+        WorldController.world.blockAt(new Coord(x,y,z)) match {
           case Some(block) => {
             job match {
               case "dig" => {
@@ -83,7 +83,7 @@ class MyActor extends Actor with Consumer {
         val y = (json \\ "y").extract[Int]
         val z = (json \\ "z").extract[Int]
         val selected = (json \\ "selected").extract[Boolean]
-        val block = WorldController.world.blockAt(x,y,z)
+        val block = WorldController.world.blockAt(new Coord(x,y,z))
         block.get.selected = selected
         self.reply(block.get.toJson)
       } else {

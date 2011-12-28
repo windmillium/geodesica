@@ -4,7 +4,7 @@ import scala.collection.mutable.ListBuffer
 object Mobile extends WithIDObject[Mobile] {
   def asJSON(startX: Int,startY: Int, width:Int,height:Int): String = {
     var js: String = "["
-    js += all.filter({m => m.block.x >= startX && m.block.y >= startY && m.block.x < startX+width && m.block.y < startY+height}).map( m => m.asJSON).mkString(",").asInstanceOf[String]
+    js += all.filter({m => m.block.coord.x >= startX && m.block.coord.y >= startY && m.block.coord.x < startX+width && m.block.coord.y < startY+height}).map( m => m.asJSON).mkString(",").asInstanceOf[String]
     js += "]"
     return js
   }
@@ -139,9 +139,10 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
             val rnd = new scala.util.Random
             val x = rnd.nextInt(10) - 5
             val y = rnd.nextInt(10) - 5
-            val block = WorldController.world.blockAt(civilization.home.x+x,civilization.home.y+y,0)
-            if(block != None && this.job == None)
-              this.task = Some(new MoveToTask(this,block.get,0))
+            val newCoord = block.coord+(x,y,0)
+            val tBlock = WorldController.world.blockAt(newCoord)
+            if(tBlock != None && this.job == None)
+              this.task = Some(new MoveToTask(this,tBlock.get,0))
           }
           case Some(job) => {
             this.task = nextTaskFor(job)
@@ -166,28 +167,29 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
   }
 
   def moveTowards(nblock:Block) = {
-    if(block.x > nblock.x)
+    if(block.coord.x > nblock.coord.x)
       move(3)
-    else if(block.x < nblock.x)
+    else if(block.coord.x < nblock.coord.x)
       move(1)
 
-    if(block.y > nblock.y)
+    if(block.coord.y > nblock.coord.y)
       move(2)
-    else if(block.y < nblock.y)
+    else if(block.coord.y < nblock.coord.y)
       move(0)
   }
 
   def move( direction: Int ) = {
     if(block != null){
-      val (x: Int, y: Int, z: Int) = direction match {
-        case 0 => (block.x,block.y+1,block.z)
-        case 1 => (block.x+1,block.y,block.z)
-        case 2 => (block.x,block.y-1,block.z)
-        case 3 => (block.x-1,block.y,block.z)
+      val add = direction match {
+        case 0 => (0,1,0)
+        case 1 => (1,0,0)
+        case 2 => (0,-1,0)
+        case 3 => (-1,0,0)
       }
+      val nCoord = block.coord + add
 
       val newBlock = for {
-        newBlock <- WorldController.world.blockAt(x,y,z)
+        newBlock <- WorldController.world.blockAt(nCoord)
         newBlock <- newBlock.canAccept
       } yield newBlock
 
@@ -223,9 +225,9 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
   def asJSON = {
     var str = "{"
     str += "\"id\":\""+id+"\","
-    str += "\"x\":\""+block.x+"\","
-    str += "\"y\":\""+block.y+"\","
-    str += "\"z\":\""+block.z+"\","
+    str += "\"x\":\""+block.coord.x+"\","
+    str += "\"y\":\""+block.coord.y+"\","
+    str += "\"z\":\""+block.coord.z+"\","
     str += "\"debug\":\""+debugInfo+"\""
     str += "}"
     str

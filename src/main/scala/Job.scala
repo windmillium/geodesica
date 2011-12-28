@@ -12,9 +12,9 @@ class Job(val queue: JobQueue, val profession:String = "General", val requiremen
     import net.liftweb.json._
     import net.liftweb.json.JsonDSL._
 
-    val json = ("x" -> block.x) ~
-      ("y" -> block.y) ~
-      ("z" -> block.z) ~
+    val json = ("x" -> block.coord.x) ~
+      ("y" -> block.coord.y) ~
+      ("z" -> block.coord.z) ~
       ("type" -> profession)
     compact(render(json))
   }

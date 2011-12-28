@@ -9,7 +9,7 @@ class PlantSpec extends Spec {
 
   def fixture =
     new {
-      val block = new Block(0,0,0)
+      val block = new Block(new Coord(0,0,0))
       val cot = new ObjectTemplate("Stick")
       val dot = new ObjectTemplate("Wood")
       val species = new PlantSpecies("test", cot, dot)

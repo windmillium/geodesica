@@ -59,11 +59,11 @@ class World( val height: Int, val depth: Int = 1) {
   }
 
   def near(block:Block,distance:Int) = {
-    map.filterKeys({case(x,y,z) => x < block.x+distance && x > block.x-distance && y < block.y+distance && y > block.y-distance})
+    map.filterKeys({case(x,y,z) => x < block.coord.x+distance && x > block.coord.x-distance && y < block.coord.y+distance && y > block.coord.y-distance})
   }
 
-  def blockAt( x : Int, y : Int, z : Int ): Option[Block] = {
-    return map.get((x,y,z))
+  def blockAt(coord:Coord): Option[Block] = {
+    return map.get((coord.x,coord.y,coord.z))
   }
 
   def createWorld = {
@@ -72,7 +72,7 @@ class World( val height: Int, val depth: Int = 1) {
         for( x <- 0 until width ) {
           val index = indexFor(x,y,z)
           val health = if( x < width/2 ) 0; else 100;
-          map += ( (x,y,z) -> new Block(this,x,y,z,health, ObjectTemplate.all.head))
+          map += ( (x,y,z) -> new Block(new Coord(x,y,z),health, ObjectTemplate.all.head))
         }
       }
     }
@@ -81,8 +81,8 @@ class World( val height: Int, val depth: Int = 1) {
   }
 
   def seedPlantsAndAnimals() = {
-    wilderness.home = blockAt(0,0,0).get
-    player.home = blockAt(width/4,height/2,0).get
+    wilderness.home = blockAt(new Coord(0,0,0)).get
+    player.home = blockAt(new Coord(width/4,height/2,0)).get
 
     val rnd = new scala.util.Random
 
