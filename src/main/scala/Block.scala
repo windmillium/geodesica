@@ -25,9 +25,9 @@ extends Attackable
   var mobiles = new ListBuffer[Mobile]
   var selected = false
   var objects = new ListBuffer[Object]
-  import scala.collection.mutable.HashSet
+  import scala.collection.mutable.Set
 
-  val classes = new HashSet[String]
+  val classes = new ListBuffer[String]
 
   blockMap.blocks += ((coord.x,coord.y,coord.z) -> this)
 
@@ -49,15 +49,25 @@ extends Attackable
     blockAt(newCoord)
   }
 
-  def allClasses = {
-    var tclasses = new HashSet[String]
-    if(objects.size > 0)
-      tclasses += "object"
-    if(plant != null)
-      tclasses += "plant"
+  def layers = {
+    var tclasses = new ListBuffer[String]
+
+    if(health == 0)
+      tclasses += "grass"
+    else
+      tclasses += "stone"
+
     if(selected)
       tclasses += "selected"
-    classes.union(tclasses)
+
+    if(objects.size > 0)
+      tclasses += "object"
+
+    if(plant != null)
+      tclasses += "plant"
+
+
+    tclasses
   }
 
   def cost:Int = 1
@@ -96,7 +106,7 @@ extends Attackable
       ("y" -> coord.y) ~
       ("z" -> coord.z) ~
       ("health" -> health) ~
-      ("classes" -> allClasses.mkString(" "))
+      ("layers" -> layers)
     compact(render(json))
   }
 
