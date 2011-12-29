@@ -140,7 +140,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
               val rnd = new scala.util.Random
               val x = rnd.nextInt(10) - 5
               val y = rnd.nextInt(10) - 5
-              val newCoord = block.coord+(x,y,0)
+              val newCoord = civilization.home.coord+(x,y,0)
               val tBlock = block.blockAt(newCoord)
               if(tBlock != None && this.job == None)
                 this.task = Some(new MoveToTask(this,tBlock.get,0))
