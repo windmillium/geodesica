@@ -158,14 +158,13 @@ class World( val height: Int, val depth: Int = 1) {
 
   def loadObjectTemplates = {
     val rubble = new ObjectTemplate("Rubble")
-    val rh = new ObjectTemplate("Rock Hammer")
-    val drh = new ObjectTemplate("Double Rock Hammer")
 
-    val requirement = new Requirement(-1,List(new ConsumableRequirement(rubble)))
-    player.recipes += new Recipe(rh, requirement)
-
+    val rhRequirement = new Requirement(-1,List(new ConsumableRequirement(rubble)))
+    val rh = new ObjectTemplate("Rock Hammer", rhRequirement)
     val drhRequirements = new Requirement(-1,List(new ConsumableRequirement(rh)),List(new InventoryRequirement(rh)))
-    player.recipes += new Recipe(drh, drhRequirements)
+    val drh = new ObjectTemplate("Double Rock Hammer", drhRequirements)
+    player.recipes += new Recipe(rh)
+    player.recipes += new Recipe(drh)
   }
 
 }

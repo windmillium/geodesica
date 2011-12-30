@@ -33,7 +33,7 @@ class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[O
 }
 
 object ObjectTemplate extends WithIDObject[ObjectTemplate]
-class ObjectTemplate(val name:String) extends WithID[ObjectTemplate] {
+class ObjectTemplate(val name:String, val requirements:Requirement = new Requirement) extends WithID[ObjectTemplate] {
   def getObject = ObjectTemplate
 
   def create = {

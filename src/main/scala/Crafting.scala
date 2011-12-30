@@ -27,8 +27,8 @@ class InventoryRequirement(val objectTemplate:ObjectTemplate) extends ObjectRequ
   }
 }
 
-class Recipe(val obj:ObjectTemplate, val requirements:Requirement) {
+class Recipe(val obj:ObjectTemplate) {
   override def toString = {
-    "Recipe: " +obj+", Requires: "+requirements
+    "Recipe: " +obj
   }
 }

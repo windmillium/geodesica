@@ -60,7 +60,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
     val obj = recipe.obj.create
     objects += obj
     obj.health = 0
-    recipe.requirements.consumableRequirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
+    recipe.obj.requirements.consumableRequirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
     obj
   }
 

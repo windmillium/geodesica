@@ -57,7 +57,7 @@ class ClearJob(queue:JobQueue) extends Job(queue, "WoodWorking", new Requirement
   }
 }
 
-class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting", recipe.requirements) with WithID[Job] {
+class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting", recipe.obj.requirements) with WithID[Job] {
   var newObject:Object = _
   override def finished = {
     newObject != null && newObject.health == 100
