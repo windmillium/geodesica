@@ -89,3 +89,13 @@ class BuildJob(queue:JobQueue) extends Job(queue, Building, new Requirement(2)) 
     Some(new BuildTask(block))
   }
 }
+
+class ZoneStockpileJob(queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    block.adjacent.filter(b => b.zone == null).size == 0
+  }
+
+  override def finalTask = {
+    Some(new ZoneStockpileTask(block))
+  }
+}
