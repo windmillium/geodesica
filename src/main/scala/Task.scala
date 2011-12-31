@@ -40,8 +40,10 @@ class CraftTask(obj:Object) extends Task {
     mobile.craft(obj)
     if(obj.health < 100)
       Some(this)
-    else
+    else {
+      mobile.placeObj(obj)
       None
+    }
   }
 }
 
