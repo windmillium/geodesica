@@ -10,6 +10,8 @@ class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[O
   var block:Block = _
 
   def name = template.name
+  def kind = template.kind
+  def capacity = 0
 
   def getObject = Object
 
@@ -32,8 +34,11 @@ class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[O
   }
 }
 
-object ObjectTemplate extends WithIDObject[ObjectTemplate]
-class ObjectTemplate(val name:String, val requirements:Requirement = new Requirement) extends WithID[ObjectTemplate] {
+object ObjectTemplate extends WithIDObject[ObjectTemplate] {
+  def objectTemplate(name:String) = all.find(ot => ot.name == name)
+}
+
+class ObjectTemplate(val name:String, val kind:String = "Object", val requirements:Requirement = new Requirement) extends WithID[ObjectTemplate] {
   def getObject = ObjectTemplate
 
   def create = {
