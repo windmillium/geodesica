@@ -18,6 +18,12 @@ class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[O
   def die = {
     
   }
+
+  def moveTo(nblock:Block) = {
+    block = nblock
+    block.objects += this
+  }
+
   override def toString = {
     var str = name+":"+id
     if(block != null)
