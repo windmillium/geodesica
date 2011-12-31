@@ -40,7 +40,7 @@ class JobQueue(name:String) extends WithIDObject[Job] {
 
 class HarvestJob(queue:JobQueue) extends Job(queue, Gardening, new Requirement(0)) with WithID[Job] {
   override def finished = {
-    block.plant.crop == 0
+    block.plant == null || block.plant.crop == 0
   }
   override def finalTask = {
     Some(new HarvestTask(block.plant))
