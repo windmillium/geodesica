@@ -107,15 +107,17 @@ class World( val height: Int, val depth: Int = 1) {
     while(x > 0) {
       val mob = human.create
       if( x == 10)
-        mob.professions += "Mining"
+        mob.professions += Mining
       if(x == 9)
-        mob.professions += "Building"
+        mob.professions += Building
       if(x == 8)
-        mob.professions += "GGardening"
+        mob.professions += Gardening
       if(x == 7)
-        mob.professions += "Crafting"
+        mob.professions += Crafting
       if(x == 6)
-        mob.professions += "WoodWorking"
+        mob.professions += WoodWorking
+      if(x == 5)
+        mob.professions += Planning
 
       mob.civilization = player
       mob.queue = player.queue
