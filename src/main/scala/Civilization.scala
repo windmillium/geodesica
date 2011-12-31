@@ -21,7 +21,10 @@ class Stockpile extends Zone {
   import ObjectTemplate._
   val blocks = new ListBuffer[Block]
   def capacity = blocks.foldLeft(0)(_ + _.objectCapacity)
+
   def finished = !blocks.exists(b => b.installedObject == null)
+
+  def objects = blocks.map(b => objectTemplate("Pallet")).flatten
 
   def requirements = blocks.map(b => (b,objectTemplate("Pallet")))
 }
