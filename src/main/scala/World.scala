@@ -47,7 +47,8 @@ class World( val height: Int, val depth: Int = 1) {
   val wilderness = new Civilization("Wilderness")
 
   loadObjectTemplates
-  createWorld(40,20,1)
+
+  createWorld(width,height,depth)
   seedPlantsAndAnimals
 
   def startWeb = {
