@@ -1,6 +1,6 @@
 package net.geodesica
 
-class Job(val queue: JobQueue, val profession:String = "General", val requirements:Requirement = new Requirement) {
+class Job(val queue: JobQueue, val profession:Profession = General, val requirements:Requirement = new Requirement) {
   var block: Block = _
   var owner: Option[Mobile] = None
   def getObject = queue
@@ -15,7 +15,7 @@ class Job(val queue: JobQueue, val profession:String = "General", val requiremen
     val json = ("x" -> block.coord.x) ~
       ("y" -> block.coord.y) ~
       ("z" -> block.coord.z) ~
-      ("type" -> profession)
+      ("type" -> profession.toString)
     compact(render(json))
   }
 }
@@ -26,7 +26,7 @@ class JobQueue(name:String) extends WithIDObject[Job] {
   def openJobs:ListBuffer[Job] = {
     all.filter(_.owner == None)
   }
-  def findJob(professions:ListBuffer[String]):Option[Job] = {
+  def findJob(professions:ListBuffer[Profession]):Option[Job] = {
     openJobs.filter(j => professions.contains(j.profession)).headOption
   }
 
@@ -38,7 +38,7 @@ class JobQueue(name:String) extends WithIDObject[Job] {
   }
 }
 
-class HarvestJob(queue:JobQueue) extends Job(queue, "Gardening", new Requirement(0)) with WithID[Job] {
+class HarvestJob(queue:JobQueue) extends Job(queue, Gardening, new Requirement(0)) with WithID[Job] {
   override def finished = {
     block.plant.crop == 0
   }
@@ -47,7 +47,7 @@ class HarvestJob(queue:JobQueue) extends Job(queue, "Gardening", new Requirement
   }
 }
 
-class ClearJob(queue:JobQueue) extends Job(queue, "WoodWorking", new Requirement(0)) with WithID[Job] {
+class ClearJob(queue:JobQueue) extends Job(queue, WoodWorking, new Requirement(0)) with WithID[Job] {
   override def finished = {
     block.plant == null
   }
@@ -72,7 +72,7 @@ class CraftJob(queue:JobQueue, recipe:Recipe) extends Job(queue, "Crafting", rec
   }
 }
 
-class DigJob(queue:JobQueue) extends Job(queue, "Mining", new Requirement(2)) with WithID[Job] {
+class DigJob(queue:JobQueue) extends Job(queue, Mining, new Requirement(2)) with WithID[Job] {
   override def finished:Boolean = {
     block.health == 0
   }
@@ -81,7 +81,7 @@ class DigJob(queue:JobQueue) extends Job(queue, "Mining", new Requirement(2)) wi
   }
 }
 
-class BuildJob(queue:JobQueue) extends Job(queue, "Building", new Requirement(2)) with WithID[Job] {
+class BuildJob(queue:JobQueue) extends Job(queue, Building, new Requirement(2)) with WithID[Job] {
   override def finished = {
     block.health == 100
   }

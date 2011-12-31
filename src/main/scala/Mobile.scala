@@ -42,8 +42,8 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
   var task: Option[Task] = None
   val objects = new ListBuffer[Object]
   import collection.mutable.HashMap
-  val professions = new ListBuffer[String]
-  professions += "General"
+  val professions = new ListBuffer[Profession]
+  professions += General
 
   def getObject = Mobile
 
@@ -65,7 +65,10 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
   }
 
   def createProfessionJob = {
-    if(professions.contains("Crafting")) {
+    if(professions.contains(Planning)) {
+      println("PLANNER")
+      Planning.doWork(civilization)
+    } else if(professions.contains(Crafting)) {
       var recipe:Option[Recipe] = None
       var i = 0
       while( recipe == None && i < civilization.recipes.size) {
@@ -81,7 +84,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
       } else {
         None
       }
-    } else if(professions.contains("Gardening")) {
+    } else if(professions.contains(Gardening)) {
       if(Plant.all.filter(p => p.crop > 0).size > 0) {
         val block = Plant.all.filter(p=>p.crop > 0).head.block
         val job = new HarvestJob(this.queue)
@@ -91,7 +94,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
       } else {
         None
       }
-    } else if(professions.contains("WoodWorking")) {
+    } else if(professions.contains(WoodWorking)) {
       val blocks = WorldController.world.near(civilization.home,10)
       blocks.filter({case(coords,block)=>block.plant != null}).foreach(b => new ClearJob(queue).block = b._2)
     }
