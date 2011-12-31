@@ -11,8 +11,8 @@ class JobQueueSpec extends Spec with ShouldMatchers {
       val mob = new Mobile(new MobileSpecies("test"))
       new FooJob(queue).owner = Some(mob)
       val job = new FooJob(queue)
-      expect(queue.findJob(mob.professions)) {
-        Some(job)
+      expect(Some(job)) {
+        queue.findJob(mob.professions)
       }
     }
   }
