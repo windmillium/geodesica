@@ -24,6 +24,7 @@ extends Attackable
   var plant: Plant = _
   var mobiles = new ListBuffer[Mobile]
   var selected = false
+  var installedObject:Object = _
   var objects = new ListBuffer[Object]
   import scala.collection.mutable.Set
 
@@ -67,6 +68,14 @@ extends Attackable
 
 
     tclasses
+
+  }
+
+  def objectCapacity = {
+    installedObject match {
+      case null => 0
+      case _ => installedObject.capacity
+    }
   }
 
   def cost:Int = 1
