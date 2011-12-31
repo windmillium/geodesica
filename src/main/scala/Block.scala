@@ -60,8 +60,7 @@ extends Attackable
     if(selected)
       tclasses += "selected"
 
-    if(objects.size > 0)
-      tclasses += "object"
+    tclasses ++= objects.map(o => o.kind)
 
     if(plant != null)
       tclasses += "plant"
