@@ -64,6 +64,24 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
     obj
   }
 
+  def placeObj(obj:Object) = {
+    objects -= obj
+    obj.moveTo(block)
+  }
+
+  def install(ot:ObjectTemplate) = {
+    val obj = objects.find(o => o.template == ot)
+    obj match {
+      case Some(obj) => {
+        objects -= obj
+        obj.block = block
+        block.installedObject = obj
+        obj.moveTo(block)
+      }
+      case _ => ()
+    }
+  }
+
   def createProfessionJob = {
     if(professions.contains(Planning)) {
       println("PLANNER")
