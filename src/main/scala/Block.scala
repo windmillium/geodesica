@@ -98,9 +98,7 @@ extends Attackable
   }
 
   def die = {
-    val obj = objectTemplate.create
-    objects += obj
-    obj.block = this
+    objectTemplate.create.moveTo(this)
   }
 
   def canAccept = {
