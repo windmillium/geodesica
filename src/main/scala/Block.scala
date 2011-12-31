@@ -26,6 +26,7 @@ extends Attackable
   var selected = false
   var installedObject:Object = _
   var objects = new ListBuffer[Object]
+  var zone:Zone = _
   import scala.collection.mutable.Set
 
   val classes = new ListBuffer[String]
@@ -65,6 +66,9 @@ extends Attackable
 
     if(plant != null)
       tclasses += "plant"
+
+    if(zone != null)
+      tclasses += "zone"
 
 
     tclasses
