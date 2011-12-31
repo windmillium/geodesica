@@ -6,6 +6,8 @@ object Object extends WithIDObject[Object] {
   }
 }
 
+class ContainerObject(template:ObjectTemplate, override val capacity:Int) extends Object(template)
+
 class Object(val template:ObjectTemplate, var health:Int = 100) extends WithID[Object] with Attackable {
   var block:Block = _
 
