@@ -84,7 +84,6 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
 
   def createProfessionJob = {
     if(professions.contains(Planning)) {
-      println("PLANNER")
       Planning.doWork(civilization)
     } else if(professions.contains(Crafting)) {
       var recipe:Option[Recipe] = None
