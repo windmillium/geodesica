@@ -9,6 +9,8 @@ class Civilization(val name:String) {
   val zones = new ListBuffer[Zone]
   val objects = new ListBuffer[Object]
 
+  def blocks = home.nearbyBlocks(10)
+
   def stockpiles = zones.collect({ case z:Stockpile => z})
   def stockpileCapacity:Int = {
     stockpiles.foldLeft(0)(_ + _.capacity)

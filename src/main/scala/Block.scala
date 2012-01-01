@@ -93,6 +93,15 @@ extends Attackable
     List(north,south,east,west).flatten.filter(b => b.canAccept != None)
   }
 
+  def nearbyBlocks(distance:Int) = {
+    blockMap.blocks.filterKeys({case(x,y,z) => 
+      x < coord.x+distance &&
+      x > coord.x-distance &&
+      y < coord.y+distance &&
+      y > coord.y-distance
+    })
+  }
+
   def distanceFrom(target:Block) = {
     coord.distanceFrom(target.coord)
   }

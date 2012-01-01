@@ -112,7 +112,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
         None
       }
     } else if(professions.contains(WoodWorking)) {
-      val blocks = WorldController.world.near(civilization.home,10)
+      val blocks = civilization.blocks
       blocks.filter({case(coords,block)=>block.plant != null}).foreach(b => new ClearJob(queue).block = b._2)
     }
     else

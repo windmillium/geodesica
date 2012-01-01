@@ -88,10 +88,6 @@ class World( val height: Int, val depth: Int = 1) {
     jobActor.start
   }
 
-  def near(block:Block,distance:Int) = {
-    blockMap.blocks.filterKeys({case(x,y,z) => x < block.coord.x+distance && x > block.coord.x-distance && y < block.coord.y+distance && y > block.coord.y-distance})
-  }
-
   def createWorld(width:Int,height:Int,depth:Int) = {
     for( z <- 0 until depth ) {
       for( y <- 0 until height ) {
