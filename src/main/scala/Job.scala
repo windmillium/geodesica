@@ -66,6 +66,7 @@ class CraftJob(queue:JobQueue, recipe:Recipe)
   }
   override def finalTask = {
     newObject = owner.get.craftInitial(recipe)
+    owner.get.civilization.objects += newObject
     Some(new CraftTask(newObject))
   }
 
