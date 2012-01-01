@@ -61,7 +61,9 @@ class HarvestTask(plant:Plant) extends Task {
   def nextStep(mobile:Mobile) = {
     if(plant.crop > 0) {
       plant.crop -= 1
-      mobile.objects += plant.cropTemplate.create
+      val obj = plant.cropTemplate.create
+      mobile.objects += obj
+      mobile.civilization.objects += obj
       Some(this)
     } else
      None 
