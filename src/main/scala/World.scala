@@ -46,6 +46,26 @@ class World( val height: Int, val depth: Int = 1) {
   val player = new Civilization("Player")
   val wilderness = new Civilization("Wilderness")
 
+    val rubble = new ObjectTemplate("Rubble", "Rock")
+
+    val requirement = new Requirement(-1,List(new ConsumableRequirement(rubble)))
+    val rh = new ObjectTemplate("Rock Hammer", "Tool", requirement)
+
+    val drhRequirements = new Requirement(-1,List(new ConsumableRequirement(rh)),List(new InventoryRequirement(rh)))
+    val drh = new ObjectTemplate("Double Rock Hammer", "Tool", drhRequirements)
+
+    val stick = new ObjectTemplate("Stick", "Wood")
+    val wood = new ObjectTemplate("Wood", "Wood")
+
+    val pRequirement = new Requirement(-1,List(new ConsumableRequirement(wood)))
+    val pallet = new ObjectTemplate("Pallet", "Pallet", pRequirement)
+
+    player.recipes += new Recipe(pallet)
+    player.recipes += new Recipe(rh)
+    player.recipes += new Recipe(drh)
+
+  val tree = new PlantSpecies("tree",stick,wood)
+
   loadObjectTemplates
 
   createWorld(width,height,depth)
@@ -91,10 +111,6 @@ class World( val height: Int, val depth: Int = 1) {
     player.home = blockMap.blockAt(new Coord(width/4,height/2,0)).get
 
     val rnd = new scala.util.Random
-
-    val cot = new ObjectTemplate("Stick")
-    val dot = new ObjectTemplate("Wood")
-    val tree = new PlantSpecies("tree",cot,dot)
 
     for(block <- blockMap.blocks if(rnd.nextInt(100) > 85 && block._2.health == 0)) {
       val plant = tree.create(block._2)
@@ -160,14 +176,6 @@ class World( val height: Int, val depth: Int = 1) {
   }
 
   def loadObjectTemplates = {
-    val rubble = new ObjectTemplate("Rubble")
-
-    val rhRequirement = new Requirement(-1,List(new ConsumableRequirement(rubble)))
-    val rh = new ObjectTemplate("Rock Hammer", rhRequirement)
-    val drhRequirements = new Requirement(-1,List(new ConsumableRequirement(rh)),List(new InventoryRequirement(rh)))
-    val drh = new ObjectTemplate("Double Rock Hammer", drhRequirements)
-    player.recipes += new Recipe(rh)
-    player.recipes += new Recipe(drh)
   }
 
 }
