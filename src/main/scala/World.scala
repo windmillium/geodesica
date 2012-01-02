@@ -115,21 +115,33 @@ class World( val height: Int, val depth: Int = 1) {
 
     val human = new MobileSpecies("human")
     val deer = new MobileSpecies("deer")
-    var x = 10
+    var x = 12
     while(x > 0) {
       val mob = human.create
-      if( x == 10)
+      if( x == 10) {
         mob.professions += Mining
-      if(x == 9)
+        mob.professions -= General
+      }
+      if(x == 9) {
         mob.professions += Building
-      if(x == 8)
+        mob.professions -= General
+      }
+      if(x == 8) {
         mob.professions += Gardening
-      if(x == 7)
+        mob.professions -= General
+      }
+      if(x == 7) {
         mob.professions += Crafting
-      if(x == 6)
+        mob.professions -= General
+      }
+      if(x == 6) {
         mob.professions += WoodWorking
-      if(x == 5)
+        mob.professions -= General
+      }
+      if(x == 5) {
         mob.professions += Planning
+        mob.professions -= General
+      }
 
       mob.civilization = player
       mob.queue = player.queue
