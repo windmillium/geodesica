@@ -119,3 +119,17 @@ class InstallObjectJob(queue:JobQueue, ot:ObjectTemplate)
     "Install: "+ot+" At: "+block
   }
 }
+
+class UnloadJob(queue:JobQueue)
+  extends Job(queue, General, new Requirement(0)) 
+  with WithID[Job] {
+
+  override def finished = {
+    owner.get.objects.size == 0
+  }
+
+  override def finalTask = {
+    owner.get.objects.foreach(o => o.moveTo(block))
+    None
+  }
+}
