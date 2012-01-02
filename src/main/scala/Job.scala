@@ -1,12 +1,16 @@
 package net.geodesica
 
-class Job(val queue: JobQueue, val profession:Profession = General, val requirements:Requirement = new Requirement) {
+class Job(val queue: JobQueue, val profession:Profession = General, val requirements:Requirement = new Requirement)
+  extends Ordered[Job]
+{
   var block: Block = _
   var owner: Option[Mobile] = None
   def getObject = queue
   def work = ()
   def finalTask:Option[Task] = None
   def finished = false
+
+  def compare(that:Job) = noTaskTimer - that.noTaskTimer
 
   def toJson = {
     import net.liftweb.json._
