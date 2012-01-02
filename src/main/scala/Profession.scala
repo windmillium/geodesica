@@ -32,13 +32,10 @@ object Planning extends Profession {
     civilization.blocks.filter({case(x,b) => b.zone == null && b.objects.size > 0}).foreach({ case(x,b) =>
       new CleanBlockJob(civilization.queue).block = b
     })
-    println("testing")
     if(civilization.stockpiles.size == 0)
       Some(new ZoneStockpileJob(civilization.queue).block = civilization.home.blockAt(civilization.home.coord+(0,0,0)).get)
-    else if(!civilization.stockpiles.head.finished){
-      println(civilization.stockpiles.head.objects)
-      // Some(civilization.stockpiles.head.
-      None
+    else if(civilization.halls.size == 0){
+      Some(new ZoneHallJob(civilization.queue).block = civilization.home.blockAt(civilization.home.coord+(0,9,0)).get)
     }
     else
       None
