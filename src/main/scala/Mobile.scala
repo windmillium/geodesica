@@ -232,6 +232,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
 
   def debugInfo:String = {
     var str:String = ""
+    str += professions
     task match {
       case Some(task) => str += "task is"+task
       case None => str += "no task"
