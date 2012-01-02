@@ -17,7 +17,7 @@ object WorldController {
     var x : Int = 1
     while( x != 0 ) {
       world.update
-      Thread.sleep(250)
+      Thread.sleep(50)
     }
   }
 }
@@ -60,7 +60,8 @@ class World( val height: Int, val depth: Int = 1) {
     val pRequirement = new Requirement(-1,List(new ConsumableRequirement(wood)))
     val pallet = new ObjectTemplate("Pallet", "Pallet", pRequirement)
 
-    val fence = new ObjectTemplate("Fence", "Fence", pRequirement)
+    val fenceRequirement = new Requirement(-1,List(new ConsumableRequirement(wood)))
+    val fence = new ObjectTemplate("Fence", "Fence", fenceRequirement)
 
     player.recipes += new Recipe(pallet)
     player.recipes += new Recipe(rh)
@@ -107,7 +108,7 @@ class World( val height: Int, val depth: Int = 1) {
 
   def seedPlantsAndAnimals() = {
     wilderness.home = blockMap.blockAt(new Coord(0,0,0)).get
-    player.home = blockMap.blockAt(new Coord(width/4,height/2,0)).get
+    player.home = blockMap.blockAt(new Coord(width/4+6,height/2,0)).get
 
     val rnd = new scala.util.Random
 
