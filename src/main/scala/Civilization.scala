@@ -34,3 +34,22 @@ class Stockpile extends Zone {
 
   def requirements = blocks.map(b => (b,objectTemplate("Pallet")))
 }
+
+class BlockSet extends HashSet[Block] {
+  def enclosed = {
+    enclosingBlocks.filter(b => b.installedObject != null).size == 0
+  }
+
+  def enclosingBlocks = {
+    filter(b =>
+      b.coord.x == max.coord.x ||
+      b.coord.x == min.coord.x ||
+      b.coord.y == max.coord.y ||
+      b.coord.y == min.coord.y
+    )
+  }
+
+  def contains(amount:Int, ot:ObjectTemplate) = {
+    filter(b => b.installedObject != null && b.installedObject.template == ot).size >= amount
+  }
+}
