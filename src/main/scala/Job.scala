@@ -120,6 +120,19 @@ class InstallObjectJob(queue:JobQueue, ot:ObjectTemplate)
   }
 }
 
+class CleanBlockJob(queue:JobQueue)
+  extends Job(queue, General, new Requirement(0))
+  with WithID[Job] {
+
+  override def finished = {
+    block.objects.size == 0
+  }
+
+  override def finalTask = {
+    Some(new CleanBlockTask(block))
+  }
+}
+
 class UnloadJob(queue:JobQueue)
   extends Job(queue, General, new Requirement(0)) 
   with WithID[Job] {
