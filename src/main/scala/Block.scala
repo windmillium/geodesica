@@ -77,6 +77,9 @@ extends Attackable
 
   }
 
+  def freeObjects = {
+    objects.filter(o => o.free)
+  }
   def objectCapacity = {
     installedObject match {
       case null => 0
