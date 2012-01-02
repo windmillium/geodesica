@@ -60,9 +60,12 @@ class World( val height: Int, val depth: Int = 1) {
     val pRequirement = new Requirement(-1,List(new ConsumableRequirement(wood)))
     val pallet = new ObjectTemplate("Pallet", "Pallet", pRequirement)
 
+    val fence = new ObjectTemplate("Fence", "Fence", pRequirement)
+
     player.recipes += new Recipe(pallet)
     player.recipes += new Recipe(rh)
     player.recipes += new Recipe(drh)
+    player.recipes += new Recipe(fence)
 
   val tree = new PlantSpecies("tree",stick,wood)
 
