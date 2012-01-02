@@ -112,7 +112,7 @@ class InstallObjectJob(queue:JobQueue, ot:ObjectTemplate)
   extends Job(queue, General, new Requirement(0, List(new ConsumableRequirement(ot)),List()))
   with WithID[Job] {
   override def finished = {
-    block.objects.find(o => o.template == ot) != None // && block.container.template == ot
+    block.installedObject != null && block.installedObject.template == ot
   }
 
   override def finalTask = {
