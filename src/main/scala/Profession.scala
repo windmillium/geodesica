@@ -43,5 +43,19 @@ object Planning extends Profession {
     "Planning"
   }
 }
-object General extends Profession
+
+object General extends Profession {
+  def doWork(mobile:Mobile) = {
+    if(mobile.objects.size > 0 && mobile.civilization.stockpiles.size > 0) {
+      val njob = new UnloadJob(mobile.queue)
+      njob.block = mobile.civilization.stockpiles.head.blocks.head
+      njob.owner = Some(mobile)
+      mobile.job = Some(njob)
+      None
+    }
+  }
+  override def toString = {
+    "General"
+  }
+}
 
