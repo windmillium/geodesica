@@ -133,6 +133,25 @@ class ZoneStockpileTask(block:Block) extends Task {
   }
 }
 
+class ZoneHallTask(block:Block, size:Int) extends Task {
+  def nextStep(mobile:Mobile) = {
+    val hall = new Hall
+    mobile.civilization.zones += hall
+
+    val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
+    hall.blocks ++= blocks
+    blocks.foreach(b => b.zone = hall)
+
+    println(hall.requirements)
+    println(hall.requirements.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}))
+    println(hall.blocks.enclosingBlocks)
+    hall.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
+    hall.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
+    println(mobile.queue.all)
+    None
+  }
+}
+
 class CleanBlockTask(block:Block) extends Task {
   def nextStep(mobile:Mobile) = {
     block.objects.foreach(o => o.moveTo(mobile))

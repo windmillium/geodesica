@@ -151,3 +151,16 @@ class UnloadJob(queue:JobQueue)
     None
   }
 }
+
+class ZoneHallJob(queue:JobQueue)
+  extends Job(queue, Planning, new Requirement(0))
+  with WithID[Job]
+{
+  override def finished = {
+    !block.nearbyBlocks(4).exists({case (x,b) => b.zone == null})
+  }
+
+  override def finalTask = {
+    Some(new ZoneHallTask(block,4))
+  }
+}
