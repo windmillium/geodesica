@@ -135,3 +135,11 @@ class ZoneStockpileTask(block:Block) extends Task {
     None
   }
 }
+
+class CleanBlockTask(block:Block) extends Task {
+  def nextStep(mobile:Mobile) = {
+    block.objects.foreach(o => o.moveTo(mobile))
+    None
+  }
+}
+
