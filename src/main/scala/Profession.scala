@@ -2,11 +2,31 @@ package net.geodesica
 
 trait Profession
 
-object Mining extends Profession
-object Building extends Profession
-object Gardening extends Profession
-object Crafting extends Profession
-object WoodWorking extends Profession
+object Mining extends Profession {
+  override def toString = {
+    "Mining"
+  }
+}
+object Building extends Profession {
+  override def toString = {
+    "Building"
+  }
+}
+object Gardening extends Profession {
+  override def toString = {
+    "Gardening"
+  }
+}
+object Crafting extends Profession {
+  override def toString = {
+    "Crafting"
+  }
+}
+object WoodWorking extends Profession {
+  override def toString = {
+    "WoodWorking"
+  }
+}
 object Planning extends Profession {
   def doWork(civilization:Civilization) = {
     if(civilization.stockpiles.size == 0)
@@ -18,6 +38,9 @@ object Planning extends Profession {
     }
     else
       None
+  }
+  override def toString = {
+    "Planning"
   }
 }
 object General extends Profession
