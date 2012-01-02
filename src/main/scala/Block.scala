@@ -20,7 +20,12 @@ class Block(val blockMap:BlockMap,
             val objectTemplate:ObjectTemplate = new ObjectTemplate("Generic Item"))
 extends Attackable
   with Container
+  with Ordered[Block]
   with Searchable[Block] {
+
+  def compare(that:Block):Int = {
+    coord.x + coord.y + coord.z - that.coord.x - that.coord.y - that.coord.z
+  }
 
   var plant: Plant = _
   var mobiles = new ListBuffer[Mobile]
