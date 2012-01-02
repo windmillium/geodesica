@@ -128,6 +128,7 @@ class Mobile(species:MobileSpecies)
     this.job match {
       case Some(job) => {
         job.owner = Some(this)
+        job.noTaskTimer = 0
       }
       case None => createProfessionJob
     }
@@ -171,7 +172,13 @@ class Mobile(species:MobileSpecies)
             }
           }
           case Some(job) => {
-            this.task = nextTaskFor(job)
+            job.noTaskTimer += 1
+            if(job.noTaskTimer > 10) {
+              this.job = None
+              job.owner = None
+              createProfessionJob
+            } else
+              this.task = nextTaskFor(job)
           }
         }
       }

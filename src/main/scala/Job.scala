@@ -5,6 +5,7 @@ class Job(val queue: JobQueue, val profession:Profession = General, val requirem
 {
   var block: Block = _
   var owner: Option[Mobile] = None
+  var noTaskTimer = 0
   def getObject = queue
   def work = ()
   def finalTask:Option[Task] = None
@@ -31,7 +32,7 @@ class JobQueue(name:String) extends WithIDObject[Job] {
     all.filter(_.owner == None)
   }
   def findJob(professions:ListBuffer[Profession]):Option[Job] = {
-    openJobs.filter(j => professions.contains(j.profession)).headOption
+    openJobs.filter(j => professions.contains(j.profession)).sorted.headOption
   }
 
   def toJson = {
