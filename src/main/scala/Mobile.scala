@@ -76,6 +76,7 @@ class Mobile(species:MobileSpecies)
     obj match {
       case Some(obj) => {
         block.installedObject = obj
+        obj.installed = block
         obj.moveTo(block)
       }
       case _ => ()
