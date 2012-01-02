@@ -101,7 +101,7 @@ class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
 
 class FindObjectTask(obj:ObjectTemplate) extends Task {
   def nextStep(mobile:Mobile) = {
-    val relevantObjects = mobile.block.objects.filter(o => o.template == obj)
+    val relevantObjects = mobile.block.freeObjects.filter(o => o.template == obj)
     val worldObjects = mobile.civilization.freeObjects.filter(o => o.template == obj)
 
     if(relevantObjects.size > 0) {
