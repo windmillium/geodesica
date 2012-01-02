@@ -1,13 +1,17 @@
 package net.geodesica
 
 import collection.mutable.ListBuffer
+import collection.mutable.HashSet
 
 class Civilization(val name:String) {
   val queue = new JobQueue(name)
   val recipes = new ListBuffer[Recipe]
   var home: Block = _
   val zones = new ListBuffer[Zone]
-  val objects = new ListBuffer[Object]
+  val objects = new HashSet[Object]
+  def freeObjects = {
+    objects.filter(o=>o.free)
+  }
 
   def blocks = home.nearbyBlocks(10)
 

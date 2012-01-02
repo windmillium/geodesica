@@ -19,14 +19,16 @@ class Block(val blockMap:BlockMap,
             var health: Int = 100,
             val objectTemplate:ObjectTemplate = new ObjectTemplate("Generic Item"))
 extends Attackable
+  with Container
   with Searchable[Block] {
 
   var plant: Plant = _
   var mobiles = new ListBuffer[Mobile]
   var selected = false
   var installedObject:Object = _
-  var objects = new ListBuffer[Object]
   var zone:Zone = _
+  var block = this
+  var civilization:Civilization = _
   import scala.collection.mutable.Set
 
   val classes = new ListBuffer[String]

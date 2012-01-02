@@ -29,6 +29,10 @@ object WoodWorking extends Profession {
 }
 object Planning extends Profession {
   def doWork(civilization:Civilization) = {
+    civilization.blocks.filter({case(x,b) => b.zone == null && b.objects.size > 0}).foreach({ case(x,b) =>
+      new CleanBlockJob(civilization.queue).block = b
+    })
+    println("testing")
     if(civilization.stockpiles.size == 0)
       Some(new ZoneStockpileJob(civilization.queue).block = civilization.home.blockAt(civilization.home.coord+(0,0,0)).get)
     else if(!civilization.stockpiles.head.finished){

@@ -33,14 +33,16 @@ class MobileSpecies(val name:String) {
   }
 }
 
-class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
+class Mobile(species:MobileSpecies)
+  extends WithID[Mobile]
+  with Container
+  with Attackable {
   var health = 100
   var civilization:Civilization = _
   var block: Block = _
   var job: Option[Job] = None
   var queue: JobQueue = _
   var task: Option[Task] = None
-  val objects = new ListBuffer[Object]
   import collection.mutable.HashMap
   val professions = new ListBuffer[Profession]
   professions += General
@@ -60,7 +62,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
     val obj = recipe.obj.create
     objects += obj
     obj.health = 0
-    recipe.obj.requirements.consumableRequirements.foreach(r => objects -= objects.filter(o => o.template == r.objectTemplate).head)
+    recipe.obj.requirements.consumableRequirements.foreach(r => objects.filter(o => o.template == r.objectTemplate).head.destroy)
     obj
   }
 
@@ -73,8 +75,6 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
     val obj = objects.find(o => o.template == ot)
     obj match {
       case Some(obj) => {
-        objects -= obj
-        obj.block = block
         block.installedObject = obj
         obj.moveTo(block)
       }
@@ -92,7 +92,7 @@ class Mobile(species:MobileSpecies) extends WithID[Mobile] with Attackable {
       var recipe:Option[Recipe] = None
       var i = 0
       while( recipe == None && i < civilization.recipes.size) {
-        if( objects.filter(o => o.template == civilization.recipes.apply(i).obj ).size == 0)
+        if( civilization.objects.filter(o => o.template == civilization.recipes.apply(i).obj ).size == 0)
           recipe = Some(civilization.recipes.apply(i))
         i += 1
       }
