@@ -119,16 +119,15 @@ class FindObjectTask(obj:ObjectTemplate) extends Task {
   }
 }
 
-class ZoneStockpileTask(block:Block) extends Task {
+class ZoneStockpileTask(block:Block, desiredSize:Int) extends Task {
   def nextStep(mobile:Mobile) = {
     val sp = new Stockpile
     mobile.civilization.zones += sp
-    sp.blocks ++= block.adjacent
-    block.adjacent.foreach(b => b.zone = sp)
+    val blocks = block.nearbyBlocks(desiredSize).map({case(c,b) => b})
+    sp.blocks ++= blocks
+    blocks.foreach(b => b.zone = sp)
     sp.requirements.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
-    println(sp.requirements.map({case (b,o) => mobile.civilization.recipes.find(r => {println(o);println(r.obj);r.obj == o} )}))
     sp.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    println(mobile.queue.all)
     None
   }
 }
