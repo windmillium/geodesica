@@ -62,7 +62,7 @@ class ClearJob(queue:JobQueue) extends Job(queue, WoodWorking, new Requirement(0
   }
 }
 
-class CraftJob(queue:JobQueue, recipe:Recipe)
+class CraftJob(queue:JobQueue, val recipe:Recipe)
   extends Job(queue, Crafting, recipe.obj.requirements)
   with WithID[Job] {
   var newObject:Object = _
@@ -95,16 +95,6 @@ class BuildJob(queue:JobQueue) extends Job(queue, Building, new Requirement(2)) 
   }
   override def finalTask = {
     Some(new BuildTask(block))
-  }
-}
-
-class ZoneStockpileJob(queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
-  override def finished = {
-    block.adjacent.filter(b => b.zone == null).size == 0
-  }
-
-  override def finalTask = {
-    Some(new ZoneStockpileTask(block))
   }
 }
 
@@ -152,15 +142,74 @@ class UnloadJob(queue:JobQueue)
   }
 }
 
-class ZoneHallJob(queue:JobQueue)
+object ZoneHallJob {
+  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneHallJob] = {
+    location match {
+      case None => None
+      case Some(block) => {
+        val job = new ZoneHallJob(block, desiredSize, queue)
+        job.block = block
+        Some(job)
+      }
+    }
+  }
+}
+object ZoneWorkshopJob {
+  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneWorkshopJob] = {
+    location match {
+      case None => None
+      case Some(block) => {
+        val job = new ZoneWorkshopJob(block, desiredSize, queue)
+        job.block = block
+        Some(job)
+      }
+    }
+  }
+}
+
+class ZoneWorkshopJob(location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
+  }
+
+  override def finalTask = {
+    Some(new ZoneWorkshopTask(location, desiredSize))
+  }
+}
+
+
+object ZoneStockpileJob {
+  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneStockpileJob] = {
+    location match {
+      case None => None
+      case Some(block) => {
+        val job = new ZoneStockpileJob(block, desiredSize, queue)
+        job.block = block
+        Some(job)
+      }
+    }
+  }
+}
+
+class ZoneStockpileJob(location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
+  }
+
+  override def finalTask = {
+    Some(new ZoneStockpileTask(location, desiredSize))
+  }
+}
+
+class ZoneHallJob(location:Block, desiredSize:Int, queue:JobQueue)
   extends Job(queue, Planning, new Requirement(0))
   with WithID[Job]
 {
   override def finished = {
-    !block.nearbyBlocks(4).exists({case (x,b) => b.zone == null})
+    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
   }
 
   override def finalTask = {
-    Some(new ZoneHallTask(block,4))
+    Some(new ZoneHallTask(block,desiredSize))
   }
 }
