@@ -83,6 +83,16 @@ class Mobile(species:MobileSpecies)
     }
   }
 
+  def assignJob(newJob:Option[Job]) = {
+    newJob match {
+      case None => ()
+      case Some(newJob) => {
+        newJob.owner = Some(this)
+        job = Some(newJob)
+      }
+    }
+  }
+
   def createProfessionJob = {
     if(professions.contains(General)) {
       General.doWork(this)
