@@ -94,7 +94,8 @@ class Mobile(species:MobileSpecies)
       var i = 0
       while( recipe == None && i < civilization.recipes.size) {
         if( civilization.objects.filter(o => o.template == civilization.recipes.apply(i).obj ).size == 0)
-          recipe = Some(civilization.recipes.apply(i))
+          if(civilization.queue.all.collect({case(j:CraftJob) => j }).filter({case(j:CraftJob) => j.recipe == civilization.recipes.apply(i)}).size ==0)
+            recipe = Some(civilization.recipes.apply(i))
         i += 1
       }
 
