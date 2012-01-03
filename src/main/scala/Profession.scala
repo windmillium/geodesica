@@ -28,15 +28,26 @@ object WoodWorking extends Profession {
   }
 }
 object Planning extends Profession {
-  def doWork(civilization:Civilization) = {
+  def doWork(mobile:Mobile) = {
+    val civilization = mobile.civilization
     val cleaningBlocks = civilization.queue.all.collect({case(j:CleanBlockJob) => j.block})
     civilization.blocks.filter({case(x,b) => b.zone == null && b.objects.size > 0 && !cleaningBlocks.contains(b)}).foreach({ case(x,b) =>
       new CleanBlockJob(civilization.queue).block = b
     })
-    if(civilization.stockpiles.size == 0)
-      Some(new ZoneStockpileJob(civilization.queue).block = civilization.home.blockAt(civilization.home.coord+(0,0,0)).get)
+    if(civilization.stockpiles.size == 0 && !civilization.queue.all.exists(j => j.isInstanceOf[ZoneStockpileJob] )) {
+      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
+      val location = new SpaceFinder(blocks, 1).location
+      mobile.assignJob(ZoneStockpileJob(location, 1, civilization.queue))
+    }
     else if(civilization.halls.size == 0){
-      Some(new ZoneHallJob(civilization.queue).block = civilization.home.blockAt(civilization.home.coord+(0,9,0)).get)
+      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
+      val location = new SpaceFinder(blocks, 3).location
+      mobile.assignJob(ZoneHallJob(location, 3, civilization.queue))
+    }
+    else if(civilization.workshops.size == 0){
+      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
+      val location = new SpaceFinder(blocks, 2).location
+      mobile.assignJob(ZoneWorkshopJob(location, 2, civilization.queue))
     }
     else
       None
