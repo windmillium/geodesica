@@ -104,11 +104,11 @@ extends Attackable
   }
 
   def nearbyBlocks(distance:Int) = {
-    blockMap.blocks.filterKeys({case(x,y,z) => 
-      x < coord.x+distance &&
-      x > coord.x-distance &&
-      y < coord.y+distance &&
-      y > coord.y-distance
+    blockMap.blocks.filterKeys({case(x,y,z) =>
+      x <= coord.x+distance &&
+      x >= coord.x-distance &&
+      y <= coord.y+distance &&
+      y >= coord.y-distance
     })
   }
 
