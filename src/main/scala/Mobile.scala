@@ -98,7 +98,7 @@ class Mobile(species:MobileSpecies)
       General.doWork(this)
     }
     if(professions.contains(Planning)) {
-      Planning.doWork(civilization)
+      Planning.doWork(this)
     } else if(professions.contains(Crafting)) {
       var recipe:Option[Recipe] = None
       var i = 0
