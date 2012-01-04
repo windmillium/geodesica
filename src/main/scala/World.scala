@@ -64,6 +64,8 @@ class World( val height: Int, val depth: Int = 1) {
     val fence = new ObjectTemplate("Fence", "Fence", fenceRequirement)
     val table = new ObjectTemplate("Table", "Table", fenceRequirement)
     val bench = new ObjectTemplate("Bench", "Table", fenceRequirement)
+    val door = new ObjectTemplate("Door", "Door", fenceRequirement)
+    val bed = new ObjectTemplate("Bed", "Bed", fenceRequirement)
 
     player.recipes += new Recipe(pallet)
     player.recipes += new Recipe(rh)
@@ -71,8 +73,14 @@ class World( val height: Int, val depth: Int = 1) {
     player.recipes += new Recipe(fence)
     player.recipes += new Recipe(table)
     player.recipes += new Recipe(bench)
+    player.recipes += new Recipe(door)
+    player.recipes += new Recipe(bed)
 
-  val tree = new PlantSpecies("tree",stick,wood)
+  val berry = new ObjectTemplate("Berry","Food")
+  val seed = new ObjectTemplate("Seed","Food")
+
+  val tree = new PlantSpecies("Tree",stick,wood)
+  val bush = new PlantSpecies("Bush",berry,seed)
 
   loadObjectTemplates
 
@@ -117,8 +125,13 @@ class World( val height: Int, val depth: Int = 1) {
     val rnd = new scala.util.Random
 
     for(block <- blockMap.blocks if(rnd.nextInt(100) > 85 && block._2.health == 0)) {
-      val plant = tree.create(block._2)
-      block._2.plant = plant
+      if(rnd.nextInt(100) > 85) {
+        val plant = bush.create(block._2)
+        block._2.plant = plant
+      } else {
+        val plant = tree.create(block._2)
+        block._2.plant = plant
+      }
     }
 
     val human = new MobileSpecies("human")
