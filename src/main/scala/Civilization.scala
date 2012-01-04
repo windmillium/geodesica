@@ -9,6 +9,8 @@ class Civilization(val name:String) {
   var home: Block = _
   val zones = new ListBuffer[Zone]
   val objects = new HashSet[Object]
+  val mobiles = new HashSet[Mobile]
+
   def freeObjects = {
     objects.filter(o=>o.free)
   }
