@@ -188,19 +188,6 @@ class World( val height: Int, val depth: Int = 1) {
   var path:List[Block] = _
   def update = {
     Plant.update
-    var selected = blockMap.blocks.filter({b => b._2.selected == true})
-    if(selected.size == 2) {
-      val search = new AStarSearch[Block]
-      path = search.search(selected.head._2, selected.last._2)
-      selected.head._2.selected = false
-      selected.last._2.selected = false
-    }
-
-    if(path != null && path.size > 0) {
-      path.head.classes += "path"
-      path = path.drop(1)
-    }
-
     Mobile.all.foreach(mobile => mobile.update)
   }
 
