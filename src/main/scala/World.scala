@@ -17,7 +17,7 @@ object WorldController {
     var x : Int = 1
     while( x != 0 ) {
       world.update
-      Thread.sleep(50)
+      // Thread.sleep(1)
     }
   }
 }

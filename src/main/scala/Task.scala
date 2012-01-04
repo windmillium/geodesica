@@ -76,7 +76,7 @@ class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
   def nextStep(mobile:Mobile):Option[Task] = {
 
     if(path == null || path.size == 0) {
-      return Some(new WaitTask(10))
+      return None //Some(new WaitTask(10))
     }
 
     val dblock = path.last
