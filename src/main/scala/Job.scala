@@ -213,3 +213,30 @@ class ZoneHallJob(location:Block, desiredSize:Int, queue:JobQueue)
     Some(new ZoneHallTask(block,desiredSize))
   }
 }
+
+object ZoneHomeJob {
+  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue) = {
+    location match {
+      case None => None
+      case Some(block) => {
+        val job = new ZoneHomeJob(block, desiredSize, queue)
+        job.block = block
+        Some(job)
+      }
+    }
+  }
+}
+
+class ZoneHomeJob(var location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
+  }
+
+  override def finalTask = {
+    if(location.nearbyBlocks(desiredSize).exists({case(c,b) => b.zone != null}))
+      Some(new FindSpaceTask(desiredSize,this))
+    else
+      Some(new ZoneHomeTask(location, desiredSize))
+  }
+}
+
