@@ -41,6 +41,7 @@ class Mobile(species:MobileSpecies)
   var civilization:Civilization = _
   var block: Block = _
   var job: Option[Job] = None
+  var jobTimer:Int = 0
   var queue: JobQueue = _
   var task: Option[Task] = None
   import collection.mutable.HashMap
@@ -94,6 +95,7 @@ class Mobile(species:MobileSpecies)
       case Some(newJob) => {
         newJob.owner = Some(this)
         job = Some(newJob)
+        this.jobTimer = newJob.noTaskTimer
       }
     }
   }
@@ -144,7 +146,7 @@ class Mobile(species:MobileSpecies)
     this.job match {
       case Some(job) => {
         job.owner = Some(this)
-        job.noTaskTimer = 0
+        this.jobTimer = job.noTaskTimer
       }
       case None => createProfessionJob
     }
@@ -189,7 +191,7 @@ class Mobile(species:MobileSpecies)
           }
           case Some(job) => {
             job.noTaskTimer += 1
-            if(job.noTaskTimer > 10) {
+            if(job.noTaskTimer - jobTimer > 10) {
               this.job = None
               job.owner = None
               createProfessionJob
