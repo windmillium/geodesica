@@ -58,6 +58,12 @@ extends Attackable
     blockAt(newCoord)
   }
 
+  def canBuild = {
+    installedObject == null &&
+    zone == null &&
+    health == 0
+  }
+
   def layers = {
     var tclasses = new ListBuffer[String]
 
