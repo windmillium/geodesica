@@ -26,32 +26,27 @@ class Civilization(val name:String) {
   }
 }
 
-trait Zone
-
-class Stockpile extends Zone {
-  import ObjectTemplate._
-  val blocks = new ListBuffer[Block]
-  def capacity = blocks.foldLeft(0)(_ + _.objectCapacity)
-
-  def finished = !blocks.exists(b => b.installedObject == null)
-
-  def objects = blocks.map(b => objectTemplate("Pallet")).flatten
-
-  def requirements = blocks.map(b => (b,objectTemplate("Pallet")))
+trait Zone {
+  val blocks = new BlockSet
 }
 
-class Workshop extends Zone {
+
+trait Construction
+
+object House {
   import ObjectTemplate._
-
-  val blocks = new BlockSet
-
-  def finished = {
-    blocks.enclosed &&
-    blocks.contains(1, objectTemplate("Table").get) &&
-    blocks.contains(1, objectTemplate("Bench").get)
+  def requirements(blocks:BlockSet) = {
+    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
+    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bed"))) +=
+    (doorBlock -> objectTemplate("Door"))
   }
+}
 
-  def requirements = {
+object Shop {
+  import ObjectTemplate._
+  def requirements(blocks:BlockSet) = {
     val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
     (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
     (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
@@ -60,16 +55,10 @@ class Workshop extends Zone {
   }
 }
 
-class Hall extends Zone {
+object Lodge {
   import ObjectTemplate._
 
-  val blocks = new BlockSet
-
-  def finished = {
-    blocks.enclosed
-  }
-
-  def requirements = {
+  def requirements(blocks:BlockSet) = {
     val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
     (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
     (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
@@ -82,22 +71,26 @@ class Hall extends Zone {
   }
 }
 
-class Home extends Zone {
+object FlatStockpile {
   import ObjectTemplate._
+  def requirements(blocks:BlockSet) = blocks.map(b => (b,objectTemplate("Pallet")))
+}
 
-  val blocks = new BlockSet
+class Stockpile extends Zone {
+  def capacity = blocks.foldLeft(0)(_ + _.objectCapacity)
 
-  def finished = {
-    blocks.enclosed
-  }
+  def requirements = FlatStockpile.requirements(blocks)
+}
+class Workshop extends Zone {
+  def requirements = Shop.requirements(blocks)
+}
 
-  def requirements = {
-    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
-    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
-    (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
-    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bed"))) +=
-    (doorBlock -> objectTemplate("Door"))
-  }
+class Hall extends Zone {
+  def requirements = Lodge.requirements(blocks)
+}
+
+class Home extends Zone {
+  def requirements = House.requirements(blocks)
 }
 
 class BlockSet extends HashSet[Block] {
