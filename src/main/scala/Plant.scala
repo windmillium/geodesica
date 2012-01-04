@@ -16,14 +16,14 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] wit
 
   def update = {
     age += 1
-    if(age % 1000 == 0)
+    if(age % 10000 == 0)
       crop += 1
   }
 
   def die = {
     block.plant = null
     Plant.all -= this
-    for( x <- 0 until 10)
+    for( x <- 0 until 2)
       deathTemplate.create.moveTo(block)
   }
 }
