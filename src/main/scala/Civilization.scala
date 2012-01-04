@@ -20,6 +20,7 @@ class Civilization(val name:String) {
   def stockpiles = zones.collect({ case z:Stockpile => z})
   def workshops = zones.collect({ case z:Workshop => z})
   def halls = zones.collect({case z:Hall => z})
+  def homes = zones.collect({case z:Home => z})
   def stockpileCapacity:Int = {
     stockpiles.foldLeft(0)(_ + _.capacity)
   }
@@ -59,6 +60,18 @@ class Workshop extends Zone {
 }
 
 class Hall extends Zone {
+  import ObjectTemplate._
+
+  val blocks = new BlockSet
+
+  def finished = {
+    blocks.enclosed
+  }
+
+  def requirements = blocks.enclosingBlocks.map(b => (b,objectTemplate("Fence")))
+}
+
+class Home extends Zone {
   import ObjectTemplate._
 
   val blocks = new BlockSet
