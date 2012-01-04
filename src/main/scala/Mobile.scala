@@ -83,7 +83,7 @@ class Mobile(species:MobileSpecies)
       case Some(obj) => {
         block.installedObject = obj
         obj.installed = block
-        obj.moveTo(block)
+        objects -= obj
       }
       case _ => ()
     }
