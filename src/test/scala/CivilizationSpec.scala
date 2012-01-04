@@ -3,9 +3,22 @@ import org.scalatest.Spec
 import net.geodesica._
 
 class CivilizationSpec extends Spec {
+  class TestZone extends Zone
+
+  describe("homes"){
+    it("should return only home zones"){
+      val civ = new Civilization("test")
+      civ.zones += new Home
+      civ.zones += new Home
+      civ.zones += new TestZone
+      expect(2){
+        civ.homes.size
+      }
+    }
+  }
+
   describe("stockpiles"){
     it("should return only stockpile zones"){
-      class TestZone extends Zone
       val civ = new Civilization("blah")
       civ.zones += new TestZone
       civ.zones += new Stockpile
