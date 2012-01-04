@@ -104,38 +104,15 @@ class Mobile(species:MobileSpecies)
     if(professions.contains(General)) {
       General.doWork(this)
     }
-    if(professions.contains(Planning)) {
-      Planning.doWork(this)
-    } else if(professions.contains(Crafting)) {
-      var recipe:Option[Recipe] = None
-      var i = 0
-      while( recipe == None && i < civilization.recipes.size) {
-        if( civilization.objects.filter(o => o.template == civilization.recipes.apply(i).obj ).size == 0)
-          if(civilization.queue.all.collect({case(j:CraftJob) => j }).filter({case(j:CraftJob) => j.recipe == civilization.recipes.apply(i)}).size ==0)
-            recipe = Some(civilization.recipes.apply(i))
-        i += 1
-      }
 
-      if( recipe != None ) {
-        val job = new CraftJob(queue,recipe.get)
-        job.owner = Some(this)
-        this.job = Some(job)
-      } else {
-        None
-      }
+    if(professions.contains(Planning)) {
+      this.assignJob(Planning.createJob(this))
+    } else if(professions.contains(Crafting)) {
+      Crafting.createJob(this)
     } else if(professions.contains(Gardening)) {
-      if(Plant.all.filter(p => p.crop > 0).size > 0) {
-        val block = Plant.all.filter(p=>p.crop > 0).head.block
-        val job = new HarvestJob(this.queue)
-        job.block = block
-        this.job = Some(job)
-        job.owner = Some(this)
-      } else {
-        None
-      }
+      Gardening.createJob(this)
     } else if(professions.contains(WoodWorking)) {
-      val blocks = civilization.blocks
-      blocks.filter({case(coords,block)=>block.plant != null}).foreach(b => new ClearJob(queue).block = b._2)
+      WoodWorking.createJob(this)
     }
     else
       None
