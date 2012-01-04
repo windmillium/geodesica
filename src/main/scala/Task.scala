@@ -190,3 +190,19 @@ class CleanBlockTask(block:Block) extends Task {
   }
 }
 
+class FindSpaceTask(size:Int, job:ZoneHomeJob) extends Task {
+  def nextStep(mobile:Mobile) = {
+    val blocks = mobile.civilization.blocks.map({case(c,b) => b}).toSet
+    val sf = new SpaceFinder(blocks, size)
+    val location = sf.location
+    location match {
+      case None => None
+      case Some(nblock) => {
+        job.location = nblock
+        job.block = nblock
+        None
+      }
+    }
+  }
+}
+
