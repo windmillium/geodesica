@@ -52,10 +52,11 @@ class Workshop extends Zone {
   }
 
   def requirements = {
-    blocks.enclosingBlocks.map(b => (b,objectTemplate("Fence"))) ++
+    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
+    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
     (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
-    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bench")))
-
+    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bench"))) +=
+    (doorBlock -> objectTemplate("Door"))
   }
 }
 
@@ -68,7 +69,17 @@ class Hall extends Zone {
     blocks.enclosed
   }
 
-  def requirements = blocks.enclosingBlocks.map(b => (b,objectTemplate("Fence")))
+  def requirements = {
+    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
+    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bench"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(2,3).map(b => (b,objectTemplate("Table"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(3,4).map(b => (b,objectTemplate("Bench"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(4,5).map(b => (b,objectTemplate("Table"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(5,6).map(b => (b,objectTemplate("Bench"))) +=
+    (doorBlock -> objectTemplate("Door"))
+  }
 }
 
 class Home extends Zone {
@@ -80,7 +91,13 @@ class Home extends Zone {
     blocks.enclosed
   }
 
-  def requirements = blocks.enclosingBlocks.map(b => (b,objectTemplate("Fence")))
+  def requirements = {
+    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
+    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(0,1).map(b => (b,objectTemplate("Table"))) ++
+    (blocks -- blocks.enclosingBlocks).slice(1,2).map(b => (b,objectTemplate("Bed"))) +=
+    (doorBlock -> objectTemplate("Door"))
+  }
 }
 
 class BlockSet extends HashSet[Block] {
