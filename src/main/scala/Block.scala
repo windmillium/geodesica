@@ -80,7 +80,7 @@ extends Attackable
     tclasses ++= objects.map(o => o.kind)
 
     if(plant != null)
-      tclasses += "plant"
+      tclasses += plant.species.name
 
     if(zone != null)
       tclasses += "zone"
