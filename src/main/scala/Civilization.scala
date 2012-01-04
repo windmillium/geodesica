@@ -15,7 +15,7 @@ class Civilization(val name:String) {
     objects.filter(o=>o.free)
   }
 
-  def blocks = home.nearbyBlocks(15)
+  def blocks = home.nearbyBlocks(20)
 
   def stockpiles = zones.collect({ case z:Stockpile => z})
   def workshops = zones.collect({ case z:Workshop => z})

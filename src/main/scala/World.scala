@@ -12,7 +12,7 @@ object WorldController {
     //   sys.exit(0)
     // }
     // world = new World(args(0).toInt)
-    world = new World(40)
+    world = new World(50)
     world.startWeb
     var x : Int = 1
     while( x != 0 ) {
