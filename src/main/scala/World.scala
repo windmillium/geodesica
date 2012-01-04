@@ -151,7 +151,7 @@ class World( val height: Int, val depth: Int = 1) {
         mob.professions -= General
       }
 
-      mob.civilization = player
+      mob.assignCivilization(player)
       mob.queue = player.queue
       mob.block = player.home
       player.home.mobiles += mob

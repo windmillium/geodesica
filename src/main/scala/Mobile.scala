@@ -58,6 +58,11 @@ class Mobile(species:MobileSpecies)
     requirements.filter(r => objects.filter(o=>o.template == r.objectTemplate).size == 0).map(r => r.objectTemplate)
   }
 
+  def assignCivilization(civilization:Civilization) = {
+    this.civilization = civilization
+    civilization.mobiles += this
+  }
+
   def craftInitial(recipe:Recipe) = {
     val obj = recipe.obj.create
     objects += obj
