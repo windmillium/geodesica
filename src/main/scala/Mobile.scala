@@ -33,7 +33,7 @@ class MobileSpecies(val name:String) {
   }
 }
 
-class Mobile(species:MobileSpecies)
+class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
   extends WithID[Mobile]
   with Container
   with Attackable {
