@@ -72,6 +72,8 @@ extends Attackable
     else
       tclasses += "stone"
 
+    if(installedObject != null)
+      tclasses += installedObject.kind
     if(selected)
       tclasses += "selected"
 
