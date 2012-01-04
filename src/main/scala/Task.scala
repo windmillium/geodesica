@@ -169,6 +169,20 @@ class ZoneHallTask(block:Block, size:Int) extends Task {
   }
 }
 
+class ZoneHomeTask(block:Block, size:Int) extends Task {
+  def nextStep(mobile:Mobile) = {
+    val zone = new Home
+    mobile.civilization.zones += zone
+
+    val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
+    zone.blocks ++= blocks
+    blocks.foreach(b => b.zone = zone)
+
+    zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
+    zone.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
+    None
+  }
+}
 class CleanBlockTask(block:Block) extends Task {
   def nextStep(mobile:Mobile) = {
     block.objects.foreach(o => o.moveTo(mobile))
