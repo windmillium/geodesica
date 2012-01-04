@@ -141,12 +141,8 @@ class ZoneWorkshopTask(block:Block, size:Int) extends Task {
     zone.blocks ++= blocks
     blocks.foreach(b => b.zone = zone)
 
-    println(zone.requirements)
-    println(zone.requirements.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}))
-    println(zone.blocks.enclosingBlocks)
     zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
     zone.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    println(mobile.queue.all)
     None
   }
 }
@@ -159,12 +155,8 @@ class ZoneHallTask(block:Block, size:Int) extends Task {
     hall.blocks ++= blocks
     blocks.foreach(b => b.zone = hall)
 
-    println(hall.requirements)
-    println(hall.requirements.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}))
-    println(hall.blocks.enclosingBlocks)
     hall.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
     hall.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    println(mobile.queue.all)
     None
   }
 }
