@@ -21,6 +21,7 @@ class Civilization(val name:String) {
   def workshops = zones.collect({ case z:Workshop => z})
   def halls = zones.collect({case z:Hall => z})
   def homes = zones.collect({case z:Home => z})
+  def farms = zones.collect({case z:Farm => z})
   def stockpileCapacity:Int = {
     stockpiles.foldLeft(0)(_ + _.capacity)
   }
@@ -30,6 +31,8 @@ class Civilization(val name:String) {
       Some('Stockpile, 1)
     } else if(workshops.size == 0) {
       Some('Workshop, 2)
+    } else if(farms.size == 0) {
+      Some('Farm, 4)
     } else if(halls.size == 0) {
       Some('Hall, 3)
     } else if(mobiles.size > homes.size) {
@@ -85,6 +88,15 @@ object Lodge {
   }
 }
 
+object Field {
+  import ObjectTemplate._
+
+  def requirements(blocks:BlockSet) = {
+    val doorBlock = blocks.min.blockAt(blocks.min.coord+(1,0,0)).get
+    (blocks.enclosingBlocks-=doorBlock).map(b => (b,objectTemplate("Fence")))
+  }
+}
+
 object FlatStockpile {
   import ObjectTemplate._
   def requirements(blocks:BlockSet) = blocks.map(b => (b,objectTemplate("Pallet")))
@@ -105,6 +117,10 @@ class Hall extends Zone {
 
 class Home extends Zone {
   def requirements = House.requirements(blocks)
+}
+
+class Farm extends Zone {
+  def requirements = Field.requirements(blocks)
 }
 
 class BlockSet extends HashSet[Block] {

@@ -126,6 +126,7 @@ class ZoneTask(kind:Symbol, block:Block, size:Int) extends Task {
       case 'Workshop => new Workshop
       case 'Hall => new Hall
       case 'Home => new Home
+      case 'Farm => new Farm
     }
 
     mobile.civilization.zones += zone
