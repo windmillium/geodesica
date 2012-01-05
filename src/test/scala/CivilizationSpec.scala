@@ -3,7 +3,9 @@ import org.scalatest.Spec
 import net.geodesica._
 
 class CivilizationSpec extends Spec {
-  class TestZone extends Zone
+  class TestZone extends Zone {
+    def requirements = new collection.mutable.HashSet[(net.geodesica.Block, Option[net.geodesica.ObjectTemplate])]
+  }
 
   describe("homes"){
     it("should return only home zones"){
