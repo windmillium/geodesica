@@ -63,45 +63,8 @@ object WoodWorking extends Profession {
     "WoodWorking"
   }
 }
+
 object Planning extends Profession {
-  def createHomeJob(civilization:Civilization) = {
-    if(civilization.mobiles.size > civilization.homes.size) {
-      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
-      val location = new SpaceFinder(blocks, 2).location
-      ZoneHomeJob(location, 2, civilization.queue)
-    } else {
-      None
-    }
-  }
-
-  def createStockpileJob(civilization:Civilization) = {
-    if(civilization.stockpiles.size == 0 && !civilization.queue.all.exists(j => j.isInstanceOf[ZoneStockpileJob] )) {
-      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
-      val location = new SpaceFinder(blocks, 1).location
-      ZoneStockpileJob(location, 1, civilization.queue)
-    } else {
-      None
-    }
-  }
-
-  def createWorkshopJob(civilization:Civilization) = {
-    if(civilization.workshops.size == 0){
-      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
-      val location = new SpaceFinder(blocks, 2).location
-      ZoneWorkshopJob(location, 2, civilization.queue)
-    } else
-      None
-  }
-
-  def createHallJob(civilization:Civilization) = {
-    if(civilization.halls.size == 0){
-      val blocks = civilization.blocks.map({case(c,b) => b}).toSet
-      val location = new SpaceFinder(blocks, 3).location
-      ZoneHallJob(location, 3, civilization.queue)
-    } else
-      None
-  }
-
   def createJob(mobile:Mobile):Option[Job] = {
     val civilization = mobile.civilization
     val cleaningBlocks = civilization.queue.all.collect({case(j:CleanBlockJob) => j.block})
@@ -109,13 +72,9 @@ object Planning extends Profession {
       new CleanBlockJob(civilization.queue).block = b
     })
 
-    List(
-      createHallJob _,
-      createWorkshopJob _,
-      createStockpileJob _,
-      createHomeJob _
-    ).flatMap({m => m(civilization)}).headOption
+  civilization.nextZone.flatMap({case(kind,size) => ZoneJob(kind,size, civilization.blocks.map({case(c,b) => b}).toSet, civilization.queue)})
   }
+
   override def toString = {
     "Planning"
   }

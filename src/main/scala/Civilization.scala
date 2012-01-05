@@ -24,12 +24,26 @@ class Civilization(val name:String) {
   def stockpileCapacity:Int = {
     stockpiles.foldLeft(0)(_ + _.capacity)
   }
+
+  def nextZone:Option[(Symbol, Int)] = {
+    if(stockpiles.size == 0) {
+      Some('Stockpile, 1)
+    } else if(workshops.size == 0) {
+      Some('Workshop, 2)
+    } else if(halls.size == 0) {
+      Some('Hall, 3)
+    } else if(mobiles.size > homes.size) {
+      Some('Home, 2)
+    } else {
+      None
+    }
+  }
 }
 
 trait Zone {
   val blocks = new BlockSet
+  def requirements:HashSet[(net.geodesica.Block, Option[net.geodesica.ObjectTemplate])]
 }
-
 
 trait Construction
 

@@ -142,24 +142,13 @@ class UnloadJob(queue:JobQueue)
   }
 }
 
-object ZoneHallJob {
-  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneHallJob] = {
+object ZoneJob {
+  def apply(kind:Symbol, desiredSize:Int, blocks:Set[Block], queue:JobQueue):Option[ZoneJob] = {
+    val location = new SpaceFinder(blocks,desiredSize).location
     location match {
       case None => None
       case Some(block) => {
-        val job = new ZoneHallJob(block, desiredSize, queue)
-        job.block = block
-        Some(job)
-      }
-    }
-  }
-}
-object ZoneWorkshopJob {
-  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneWorkshopJob] = {
-    location match {
-      case None => None
-      case Some(block) => {
-        val job = new ZoneWorkshopJob(block, desiredSize, queue)
+        val job = new ZoneJob(kind, block, desiredSize, queue)
         job.block = block
         Some(job)
       }
@@ -167,76 +156,12 @@ object ZoneWorkshopJob {
   }
 }
 
-class ZoneWorkshopJob(location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+class ZoneJob(kind:Symbol, location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
   override def finished = {
     location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
   }
 
   override def finalTask = {
-    Some(new ZoneWorkshopTask(location, desiredSize))
+    Some(new ZoneTask(kind, location, desiredSize))
   }
 }
-
-
-object ZoneStockpileJob {
-  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue):Option[ZoneStockpileJob] = {
-    location match {
-      case None => None
-      case Some(block) => {
-        val job = new ZoneStockpileJob(block, desiredSize, queue)
-        job.block = block
-        Some(job)
-      }
-    }
-  }
-}
-
-class ZoneStockpileJob(location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
-  override def finished = {
-    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
-  }
-
-  override def finalTask = {
-    Some(new ZoneStockpileTask(location, desiredSize))
-  }
-}
-
-class ZoneHallJob(location:Block, desiredSize:Int, queue:JobQueue)
-  extends Job(queue, Planning, new Requirement(0))
-  with WithID[Job]
-{
-  override def finished = {
-    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
-  }
-
-  override def finalTask = {
-    Some(new ZoneHallTask(block,desiredSize))
-  }
-}
-
-object ZoneHomeJob {
-  def apply(location:Option[Block], desiredSize:Int, queue:JobQueue) = {
-    location match {
-      case None => None
-      case Some(block) => {
-        val job = new ZoneHomeJob(block, desiredSize, queue)
-        job.block = block
-        Some(job)
-      }
-    }
-  }
-}
-
-class ZoneHomeJob(var location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
-  override def finished = {
-    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
-  }
-
-  override def finalTask = {
-    if(location.nearbyBlocks(desiredSize).exists({case(c,b) => b.zone != null}))
-      Some(new FindSpaceTask(desiredSize,this))
-    else
-      Some(new ZoneHomeTask(location, desiredSize))
-  }
-}
-

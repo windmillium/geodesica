@@ -119,62 +119,26 @@ class FindObjectTask(obj:ObjectTemplate) extends Task {
   }
 }
 
-class ZoneStockpileTask(block:Block, desiredSize:Int) extends Task {
+class ZoneTask(kind:Symbol, block:Block, size:Int) extends Task {
   def nextStep(mobile:Mobile) = {
-    val sp = new Stockpile
-    mobile.civilization.zones += sp
-    val blocks = block.nearbyBlocks(desiredSize).map({case(c,b) => b})
-    sp.blocks ++= blocks
-    blocks.foreach(b => b.zone = sp)
-    sp.requirements.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
-    sp.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    None
-  }
-}
+    val zone = kind match {
+      case 'Stockpile => new Stockpile
+      case 'Workshop => new Workshop
+      case 'Hall => new Hall
+      case 'Home => new Home
+    }
 
-class ZoneWorkshopTask(block:Block, size:Int) extends Task {
-  def nextStep(mobile:Mobile) = {
-    val zone = new Workshop
     mobile.civilization.zones += zone
 
     val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
     zone.blocks ++= blocks
     blocks.foreach(b => b.zone = zone)
-
     zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
     zone.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
     None
   }
 }
-class ZoneHallTask(block:Block, size:Int) extends Task {
-  def nextStep(mobile:Mobile) = {
-    val hall = new Hall
-    mobile.civilization.zones += hall
 
-    val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
-    hall.blocks ++= blocks
-    blocks.foreach(b => b.zone = hall)
-
-    hall.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
-    hall.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    None
-  }
-}
-
-class ZoneHomeTask(block:Block, size:Int) extends Task {
-  def nextStep(mobile:Mobile) = {
-    val zone = new Home
-    mobile.civilization.zones += zone
-
-    val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
-    zone.blocks ++= blocks
-    blocks.foreach(b => b.zone = zone)
-
-    zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
-    zone.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
-    None
-  }
-}
 class CleanBlockTask(block:Block) extends Task {
   def nextStep(mobile:Mobile) = {
     block.objects.foreach(o => o.moveTo(mobile))
@@ -182,19 +146,19 @@ class CleanBlockTask(block:Block) extends Task {
   }
 }
 
-class FindSpaceTask(size:Int, job:ZoneHomeJob) extends Task {
-  def nextStep(mobile:Mobile) = {
-    val blocks = mobile.civilization.blocks.map({case(c,b) => b}).toSet
-    val sf = new SpaceFinder(blocks, size)
-    val location = sf.location
-    location match {
-      case None => None
-      case Some(nblock) => {
-        job.location = nblock
-        job.block = nblock
-        None
-      }
-    }
-  }
-}
+// class FindSpaceTask(size:Int, job:ZoneHomeJob) extends Task {
+//   def nextStep(mobile:Mobile) = {
+//     val blocks = mobile.civilization.blocks.map({case(c,b) => b}).toSet
+//     val sf = new SpaceFinder(blocks, size)
+//     val location = sf.location
+//     location match {
+//       case None => None
+//       case Some(nblock) => {
+//         job.location = nblock
+//         job.block = nblock
+//         None
+//       }
+//     }
+//   }
+// }
 
