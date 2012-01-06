@@ -90,6 +90,10 @@ extends Attackable
 
   }
 
+  def plantWithCrop = {
+    plant != null && plant.crop > 0
+  }
+
   def freeObjects = {
     objects.filter(o => o.free)
   }
