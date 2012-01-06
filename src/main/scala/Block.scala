@@ -116,13 +116,8 @@ extends Attackable
     List(north,south,east,west).flatten.filter(b => b.canAccept)
   }
 
-  def nearbyBlocks(distance:Int) = {
-    blockMap.blocks.filterKeys({case(x,y,z) =>
-      x <= coord.x+distance &&
-      x >= coord.x-distance &&
-      y <= coord.y+distance &&
-      y >= coord.y-distance
-    })
+  def nearbyBlocks(distance:Int):List[Option[Block]] = {
+    blockMap.blocksAt(coord.x.until(coord.x+distance).map(x => coord.y.until(coord.y+distance).map(y => new Coord(x,y,0))).flatten.toList)
   }
 
   def distanceFrom(target:Block) = {
