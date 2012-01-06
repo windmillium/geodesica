@@ -1,2 +1,25 @@
 Geodesica is an open source game engine written in scala. It is designed to
 support a wide variety of games and clients.
+
+To run:
+
+Build with SBT: https://github.com/harrah/xsbt/wiki
+In geodesica directory:
+sbt run
+
+To load the client( https://github.com/windmillium/geodesica-client ) I use nginx locally:
+
+    server {
+      listen 80;
+      server_name geo.42foo.com;
+      location / {
+        root /Users/lsheridan/Projects/geodesica/client;
+      }
+
+      location ~* ^/game {
+        rewrite /game(.*) $1 break;
+        proxy_pass http://geo.42foo.com:8888;
+      }
+    }
+
+Then visit geo.42foo.com in a modern web browser.
