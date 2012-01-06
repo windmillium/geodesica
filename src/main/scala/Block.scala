@@ -61,7 +61,8 @@ extends Attackable
   def canBuild = {
     installedObject == null &&
     zone == null &&
-    health == 0
+    plant == null &&
+    canAccept
   }
 
   def layers = {
@@ -112,7 +113,7 @@ extends Attackable
   }
 
   def adjacent:List[Block] = {
-    List(north,south,east,west).flatten.filter(b => b.canAccept != None)
+    List(north,south,east,west).flatten.filter(b => b.canAccept)
   }
 
   def nearbyBlocks(distance:Int) = {
@@ -133,10 +134,7 @@ extends Attackable
   }
 
   def canAccept = {
-    health match {
-      case 0 => Some(this)
-      case _ => None
-    }
+    health == 0// && (installedObject == null || installedObject.template.name != "Fence")
   }
 
   def toJson = {

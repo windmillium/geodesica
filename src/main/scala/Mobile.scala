@@ -216,21 +216,18 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
       }
       val nCoord = block.coord + add
 
-      val newBlock = for {
-        newBlock <- block.blockAt(nCoord)
-        newBlock <- newBlock.canAccept
-      } yield newBlock
-
-      moveTo(newBlock)
+      moveTo(block.blockAt(nCoord))
     }
   }
 
   def moveTo(newBlock: Option[Block]) = {
     newBlock match {
       case Some(nblock) => {
-        block.mobiles -= this
-        nblock.mobiles += this
-        block = nblock
+        if(nblock.canAccept){
+          block.mobiles -= this
+          nblock.mobiles += this
+          block = nblock
+        }
       }
       case None => None
     }
