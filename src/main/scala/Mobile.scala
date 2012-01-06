@@ -105,13 +105,13 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
     }
   }
 
-  def createProfessionJob = {
+  def createProfessionJob:Option[Job] = {
     if(professions.contains(General)) {
       General.doWork(this)
     }
 
     if(professions.contains(Planning)) {
-      this.assignJob(Planning.createJob(this))
+      Planning.createJob(this)
     } else if(professions.contains(Crafting)) {
       Crafting.createJob(this)
     } else if(professions.contains(Gardening)) {
@@ -130,7 +130,7 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
         job.owner = Some(this)
         this.jobTimer = job.noTaskTimer
       }
-      case None => createProfessionJob
+      case None => this.assignJob(createProfessionJob)
     }
   }
 
@@ -176,7 +176,6 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
             if(job.noTaskTimer - jobTimer > 10) {
               this.job = None
               job.owner = None
-              createProfessionJob
             } else
               this.task = nextTaskFor(job)
           }
