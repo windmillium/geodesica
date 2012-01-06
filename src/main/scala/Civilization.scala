@@ -121,6 +121,8 @@ class Home extends Zone {
 
 class Farm extends Zone {
   def requirements = Field.requirements(blocks)
+
+  def finishedPlants = blocks.filter(b => b.plant != null && b.plant.crop > 0).map(b => b.plant)
 }
 
 class BlockSet extends HashSet[Block] {
