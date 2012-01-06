@@ -28,15 +28,15 @@ class Civilization(val name:String) {
 
   def nextZone:Option[(Symbol, Int)] = {
     if(stockpiles.size == 0) {
-      Some('Stockpile, 1)
+      Some('Stockpile, 3)
     } else if(workshops.size == 0) {
-      Some('Workshop, 2)
+      Some('Workshop, 5)
     } else if(farms.size == 0) {
-      Some('Farm, 4)
+      Some('Farm, 7)
     } else if(halls.size == 0) {
-      Some('Hall, 3)
+      Some('Hall, 6)
     } else if(mobiles.size > homes.size) {
-      Some('Home, 2)
+      Some('Home, 5)
     } else {
       None
     }
