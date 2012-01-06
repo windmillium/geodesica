@@ -29,6 +29,10 @@ class BlockMap {
     return blocks.get((coord.x,coord.y,coord.z))
   }
 
+  def blocksAt(coords:List[Coord]):List[Option[Block]] = {
+    coords.map(c => blockAt(c))
+  }
+
   def asJSON(startX: Int,startY: Int, width:Int,height:Int): String = {
     var js : String = "["
     js += blocks.
