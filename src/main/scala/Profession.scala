@@ -34,9 +34,7 @@ object Crafting extends Profession {
     }
 
     if( recipe != None ) {
-      val job = new CraftJob(mobile.block,mobile.queue,recipe.get)
-      job.owner = Some(mobile)
-      mobile.job = Some(job)
+      Some(new CraftJob(mobile.block,mobile.queue,recipe.get))
     } else {
       None
     }
