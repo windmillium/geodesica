@@ -28,8 +28,15 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] wit
   }
 }
 
-class PlantSpecies(val name:String, val cropTemplate:ObjectTemplate, val deathTemplate:ObjectTemplate) {
+object PlantSpecies extends WithIDObject[PlantSpecies] {
+  def apply(name:String) = {
+    all.find(p => p.name == name)
+  }
+}
+class PlantSpecies(val name:String, val cropTemplate:ObjectTemplate, val deathTemplate:ObjectTemplate) extends WithID[PlantSpecies] {
   def create(block:Block) = {
     new Plant(this,block)
   }
+
+  def getObject = PlantSpecies
 }
