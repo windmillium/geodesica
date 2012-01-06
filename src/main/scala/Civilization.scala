@@ -123,6 +123,7 @@ class Farm extends Zone {
   def requirements = Field.requirements(blocks)
 
   def finishedPlants = blocks.filter(b => b.plant != null && b.plant.crop > 0).map(b => b.plant)
+  def freeBlock = blocks.find(b => b.plant == null)
 }
 
 class BlockSet extends HashSet[Block] {
