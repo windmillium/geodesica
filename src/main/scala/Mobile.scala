@@ -91,6 +91,10 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
   }
 
   def assignJob(newJob:Option[Job]) = {
+    job match {
+      case None => ()
+      case Some(job) => job.owner = None
+    }
     newJob match {
       case None => ()
       case Some(newJob) => {
