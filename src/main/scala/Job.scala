@@ -20,7 +20,8 @@ abstract class Job(val queue: JobQueue, val profession:Profession = General, val
     val json = ("x" -> block.coord.x) ~
       ("y" -> block.coord.y) ~
       ("z" -> block.coord.z) ~
-      ("type" -> profession.toString)
+      ("type" -> profession.toString) ~
+      ("job" -> this.toString)
     compact(render(json))
   }
 }
