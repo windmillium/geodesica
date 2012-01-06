@@ -153,6 +153,7 @@ class ZoneTask(kind:Symbol, block:Block, size:Int) extends Task {
 class CleanBlockTask(block:Block) extends Task {
   def nextStep(mobile:Mobile) = {
     block.objects.foreach(o => o.moveTo(mobile))
+    mobile.assignJob(Some(new UnloadJob(mobile.civilization.stockpiles.head.blocks.head, mobile.queue)))
     None
   }
 }
