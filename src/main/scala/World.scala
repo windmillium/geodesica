@@ -12,7 +12,7 @@ object WorldController {
     //   sys.exit(0)
     // }
     // world = new World(args(0).toInt)
-    world = new World(50)
+    world = new World(100)
     world.startWeb
     var x : Int = 1
     while( x != 0 ) {
@@ -123,8 +123,8 @@ class World( val height: Int, val depth: Int = 1) {
 
 
   def seedPlantsAndAnimals() = {
-    wilderness.home = blockMap.blockAt(new Coord(0,0,0)).get
-    player.home = blockMap.blockAt(new Coord(width/4+10,height/2,0)).get
+    wilderness.home = blockMap.blockAt(new Coord(width/4+10,height/2,0)).get
+    player.home = blockMap.blockAt(new Coord(10,10,0)).get
 
     val rnd = new scala.util.Random
 
