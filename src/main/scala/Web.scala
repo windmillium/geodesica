@@ -36,13 +36,11 @@ class JobActor(queue: JobQueue, blockMap:BlockMap ) extends Actor with Consumer 
           case Some(block) => {
             job match {
               case "dig" => {
-                val njob = new DigJob(queue)
-                njob.block = block
+                val njob = new DigJob(block,queue)
                 self.reply(njob.toJson)
               }
               case "build" => {
-                val njob = new BuildJob(queue)
-                njob.block = block
+                val njob = new BuildJob(block,queue)
                 self.reply(njob.toJson)
               }
             }

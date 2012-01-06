@@ -13,16 +13,9 @@ object Building extends Profession {
   }
 }
 object Gardening extends Profession {
-  def createJob(mobile:Mobile) = {
-    if(Plant.all.filter(p => p.crop > 0).size > 0) {
-      val block = Plant.all.filter(p=>p.crop > 0).head.block
-      val job = new HarvestJob(mobile.queue)
-      job.block = block
-      mobile.job = Some(job)
-      job.owner = Some(mobile)
-    } else {
-      None
-    }
+  def createJob(mobile:Mobile):Option[Job] = {
+    mobile.civilization.blocks.flatten.filter(b => b.plantWithCrop).headOption.map(new HarvestJob(_,mobile.queue)).
+    orElse(mobile.civilization.farms.headOption.flatMap(f => f.freeBlock).map(new PlantJob(_,mobile.queue)))
   }
 
   override def toString = {
@@ -41,7 +34,7 @@ object Crafting extends Profession {
     }
 
     if( recipe != None ) {
-      val job = new CraftJob(mobile.queue,recipe.get)
+      val job = new CraftJob(mobile.block,mobile.queue,recipe.get)
       job.owner = Some(mobile)
       mobile.job = Some(job)
     } else {
@@ -56,7 +49,7 @@ object Crafting extends Profession {
 object WoodWorking extends Profession {
   def createJob(mobile:Mobile) = {
     val blocks = mobile.civilization.blocks
-    blocks.filter({case(coords,block)=>block.plant != null}).foreach(b => new ClearJob(mobile.queue).block = b._2)
+    blocks.flatten.filter(block => block.plant != null && (block.zone == null || !block.zone.isInstanceOf[Farm] )).headOption.map(b => new ClearJob(b,mobile.queue))
   }
 
   override def toString = {
@@ -68,11 +61,10 @@ object Planning extends Profession {
   def createJob(mobile:Mobile):Option[Job] = {
     val civilization = mobile.civilization
     val cleaningBlocks = civilization.queue.all.collect({case(j:CleanBlockJob) => j.block})
-    civilization.blocks.filter({case(x,b) => (b.zone == null || !b.zone.isInstanceOf[Stockpile]) && b.objects.size > 0 && !cleaningBlocks.contains(b)}).foreach({ case(x,b) =>
-      new CleanBlockJob(civilization.queue).block = b
-    })
+    civilization.blocks.flatten.filter(b => (b.zone == null || !b.zone.isInstanceOf[Stockpile]) && b.objects.size > 0 && !cleaningBlocks.contains(b)).
+      foreach(b => new CleanBlockJob(b,civilization.queue))
 
-  civilization.nextZone.flatMap({case(kind,size) => ZoneJob(kind,size, civilization.blocks.map({case(c,b) => b}).toSet, civilization.queue)})
+  civilization.nextZone.flatMap({case(kind,size) => ZoneJob(kind,size, civilization.blocks.flatten.toSet, civilization.queue)})
   }
 
   override def toString = {
@@ -83,8 +75,7 @@ object Planning extends Profession {
 object General extends Profession {
   def doWork(mobile:Mobile) = {
     if(mobile.objects.size > 0 && mobile.civilization.stockpiles.size > 0) {
-      val njob = new UnloadJob(mobile.queue)
-      njob.block = mobile.civilization.stockpiles.head.blocks.head
+      val njob = new UnloadJob(mobile.civilization.stockpiles.head.blocks.head,mobile.queue)
       njob.owner = Some(mobile)
       mobile.job = Some(njob)
       None

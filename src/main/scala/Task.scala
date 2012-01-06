@@ -57,21 +57,31 @@ class ClearTask(plant:Plant) extends Task {
   }
 }
 
+object HarvestTask {
+  def apply(plant:Plant) = {
+    Some(new HarvestTask(plant))
+  }
+}
+
 class HarvestTask(plant:Plant) extends Task {
   def nextStep(mobile:Mobile) = {
-    if(plant.crop > 0) {
+    if(mobile.block != plant.block)
+      Some(new MoveToTask(mobile, plant.block, 0))
+    else if(plant.crop > 0) {
       plant.crop -= 1
       val obj = plant.cropTemplate.create
       mobile.objects += obj
       mobile.civilization.objects += obj
       Some(this)
     } else
-     None 
+     None
   }
 }
 
 class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
   var path = (new AStarSearch[Block]).search(block,mobile.block)
+  if(path != null && path.size > 0)
+    path = path.drop(1)
 
   def nextStep(mobile:Mobile):Option[Task] = {
 
@@ -131,11 +141,11 @@ class ZoneTask(kind:Symbol, block:Block, size:Int) extends Task {
 
     mobile.civilization.zones += zone
 
-    val blocks = block.nearbyBlocks(size).collect({case(x,b) => b})
+    val blocks = block.nearbyBlocks(size).flatten
     zone.blocks ++= blocks
     blocks.foreach(b => b.zone = zone)
-    zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.queue,r))
-    zone.requirements.foreach({case (b,o) => new InstallObjectJob(mobile.queue, o.get).block = b})
+    zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.block,mobile.queue,r))
+    zone.requirements.foreach({case (b,o) => new InstallObjectJob(b,mobile.queue, o.get)})
     None
   }
 }
@@ -146,6 +156,27 @@ class CleanBlockTask(block:Block) extends Task {
     None
   }
 }
+
+object PlantTask {
+  def apply(farm:Farm) = {
+    println(farm)
+    farm.freeBlock.map(new PlantTask(_))
+  }
+}
+
+class PlantTask(block:Block) extends Task {
+  def nextStep(mobile:Mobile) = {
+    if(block != mobile.block)
+      Some(new MoveToTask(mobile, block, 0 ))
+    else {
+      val plant = PlantSpecies("Bush").get.create(block)
+      block.plant = plant
+      None
+    }
+  }
+}
+
+
 
 // class FindSpaceTask(size:Int, job:ZoneHomeJob) extends Task {
 //   def nextStep(mobile:Mobile) = {

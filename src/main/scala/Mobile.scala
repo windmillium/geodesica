@@ -77,10 +77,11 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
     obj.moveTo(block)
   }
 
-  def install(ot:ObjectTemplate) = {
+  def install(ot:ObjectTemplate,block:Block) = {
     val obj = objects.find(o => o.template == ot)
     obj match {
       case Some(obj) => {
+        block.mobiles.foreach(m => m.moveTo(block.nearbyBlocks(1).flatten.filter(_.canAccept).headOption))
         block.installedObject = obj
         obj.installed = block
         objects -= obj

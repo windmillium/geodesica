@@ -1,9 +1,9 @@
 package net.geodesica
 
-class Job(val queue: JobQueue, val profession:Profession = General, val requirements:Requirement = new Requirement)
+abstract class Job(val queue: JobQueue, val profession:Profession = General, val requirements:Requirement = new Requirement)
   extends Ordered[Job]
 {
-  var block: Block = _
+  val block:Block
   var owner: Option[Mobile] = None
   var noTaskTimer = 0
   def getObject = queue
@@ -43,7 +43,7 @@ class JobQueue(name:String) extends WithIDObject[Job] {
   }
 }
 
-class HarvestJob(queue:JobQueue) extends Job(queue, Gardening, new Requirement(0)) with WithID[Job] {
+class HarvestJob(val block:Block, queue:JobQueue) extends Job(queue, Gardening, new Requirement(0)) with WithID[Job] {
   override def finished = {
     block.plant == null || block.plant.crop == 0
   }
@@ -52,7 +52,17 @@ class HarvestJob(queue:JobQueue) extends Job(queue, Gardening, new Requirement(0
   }
 }
 
-class ClearJob(queue:JobQueue) extends Job(queue, WoodWorking, new Requirement(0)) with WithID[Job] {
+class PlantJob(val block:Block, queue:JobQueue) extends Job(queue, Gardening, new Requirement(0)) with WithID[Job] {
+  override def finished = {
+    block.plant != null
+  }
+
+  override def finalTask = {
+    Some(new PlantTask(block))
+  }
+}
+
+class ClearJob(val block:Block, queue:JobQueue) extends Job(queue, WoodWorking, new Requirement(0)) with WithID[Job] {
   override def finished = {
     block.plant == null
   }
@@ -62,7 +72,7 @@ class ClearJob(queue:JobQueue) extends Job(queue, WoodWorking, new Requirement(0
   }
 }
 
-class CraftJob(queue:JobQueue, val recipe:Recipe)
+class CraftJob(val block:Block, queue:JobQueue, val recipe:Recipe)
   extends Job(queue, Crafting, recipe.obj.requirements)
   with WithID[Job] {
   var newObject:Object = _
@@ -80,7 +90,7 @@ class CraftJob(queue:JobQueue, val recipe:Recipe)
   }
 }
 
-class DigJob(queue:JobQueue) extends Job(queue, Mining, new Requirement(2)) with WithID[Job] {
+class DigJob(val block:Block, queue:JobQueue) extends Job(queue, Mining, new Requirement(2)) with WithID[Job] {
   override def finished:Boolean = {
     block.health == 0
   }
@@ -89,7 +99,7 @@ class DigJob(queue:JobQueue) extends Job(queue, Mining, new Requirement(2)) with
   }
 }
 
-class BuildJob(queue:JobQueue) extends Job(queue, Building, new Requirement(2)) with WithID[Job] {
+class BuildJob(val block:Block, queue:JobQueue) extends Job(queue, Building, new Requirement(2)) with WithID[Job] {
   override def finished = {
     block.health == 100
   }
@@ -98,15 +108,15 @@ class BuildJob(queue:JobQueue) extends Job(queue, Building, new Requirement(2)) 
   }
 }
 
-class InstallObjectJob(queue:JobQueue, ot:ObjectTemplate)
-  extends Job(queue, General, new Requirement(0, List(new ConsumableRequirement(ot)),List()))
+class InstallObjectJob(val block:Block, queue:JobQueue, ot:ObjectTemplate)
+  extends Job(queue, General, new Requirement(1, List(new ConsumableRequirement(ot)),List()))
   with WithID[Job] {
   override def finished = {
     block.installedObject != null && block.installedObject.template == ot
   }
 
   override def finalTask = {
-    owner.get.install(ot)
+    owner.get.install(ot,block)
     None
   }
 
@@ -115,7 +125,7 @@ class InstallObjectJob(queue:JobQueue, ot:ObjectTemplate)
   }
 }
 
-class CleanBlockJob(queue:JobQueue)
+class CleanBlockJob(val block:Block, queue:JobQueue)
   extends Job(queue, General, new Requirement(0))
   with WithID[Job] {
 
@@ -128,7 +138,7 @@ class CleanBlockJob(queue:JobQueue)
   }
 }
 
-class UnloadJob(queue:JobQueue)
+class UnloadJob(val block:Block, queue:JobQueue)
   extends Job(queue, General, new Requirement(0)) 
   with WithID[Job] {
 
@@ -149,19 +159,18 @@ object ZoneJob {
       case None => None
       case Some(block) => {
         val job = new ZoneJob(kind, block, desiredSize, queue)
-        job.block = block
         Some(job)
       }
     }
   }
 }
 
-class ZoneJob(kind:Symbol, location:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
+class ZoneJob(kind:Symbol, val block:Block, desiredSize:Int, queue:JobQueue) extends Job(queue, Planning, new Requirement(0)) with WithID[Job] {
   override def finished = {
-    location.nearbyBlocks(desiredSize).filter({case(c,b) => b.zone == null}).size == 0
+    !block.nearbyBlocks(desiredSize).flatten.exists(b => b.zone == null)
   }
 
   override def finalTask = {
-    Some(new ZoneTask(kind, location, desiredSize))
+    Some(new ZoneTask(kind, block, desiredSize))
   }
 }
