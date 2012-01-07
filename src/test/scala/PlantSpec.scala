@@ -30,8 +30,8 @@ class PlantSpec extends Spec {
     it("should create a deathTemplate object in the block") {
       val f = fixture
       f.species.create(f.block).die
-      expect(f.block.objects.filter(o=>o.template == f.dot).size) {
-        1
+      expect(2){
+        f.block.objects.filter(o=>o.template == f.dot).size
       }
     }
 
@@ -54,10 +54,10 @@ class PlantSpec extends Spec {
       }
     }
 
-    it("should add to the crop every 1000 updates"){
+    it("should add to the crop every 10000 updates"){
       val f = fixture
       f.plant.crop = 0
-      for(i <- 0 until 2999){
+      for(i <- 0 until 29999){
         f.plant.update
       }
       expect(2){

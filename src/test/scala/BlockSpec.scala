@@ -56,19 +56,19 @@ class BlockSpec extends Spec {
   }
 
   describe("canAccept"){
-    it("should return None if health > 0"){
+    it("should return false if health > 0"){
       val blockMap = new BlockMap
       val block = new Block(blockMap,new Coord(0,0,0))
       block.health = 1
-      expect(None){
+      expect(false){
         block.canAccept
       }
     }
-    it("should return Some(block) if health = 0"){
+    it("should return true if health = 0"){
       val blockMap = new BlockMap
       val block = new Block(blockMap,new Coord(0,0,0))
       block.health = 0
-      expect(Some(block)){
+      expect(true){
         block.canAccept
       }
     }
