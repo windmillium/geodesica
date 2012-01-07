@@ -4,7 +4,7 @@ import collection.mutable.ListBuffer
 import collection.mutable.HashSet
 
 class Civilization(val name:String) {
-  val queue = new JobQueue(name)
+  val queue = new JobQueue
   val recipes = new ListBuffer[Recipe]
   var home: Block = _
   val zones = new ListBuffer[Zone]

@@ -26,7 +26,7 @@ abstract class Job(val queue: JobQueue, val profession:Profession = General, val
   }
 }
 
-class JobQueue(name:String) extends WithIDObject[Job] {
+class JobQueue extends WithIDObject[Job] {
   import collection.mutable.ListBuffer
 
   def openJobs:ListBuffer[Job] = {
