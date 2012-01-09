@@ -32,14 +32,14 @@ class Civilization(val name:String) {
       Some('Stockpile, 3)
     } else if(workshops.size == 0) {
       Some('Workshop, 5)
-    } else if(farms.size == 0) {
-      Some('Farm, 7)
     } else if(halls.size == 0) {
       Some('Hall, 6)
     } else if(barracks.size == 0) {
       Some('Barracks, 6)
     } else if(mobiles.size > homes.size) {
       Some('Home, 5)
+    } else if(farms.size == 0) {
+      Some('Farm, 7)
     } else {
       None
     }
