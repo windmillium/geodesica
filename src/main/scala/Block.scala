@@ -14,8 +14,8 @@ case class Coord(x:Int,y:Int,z:Int) {
   }
 }
 
-class Block(val blockMap:BlockMap,
-            val coord:Coord,
+class Block(val blockMap:BlockMap = new BlockMap,
+            val coord:Coord = new Coord(0,0,0),
             var health: Int = 100,
             val objectTemplate:ObjectTemplate = new ObjectTemplate("Generic Item"))
 extends Attackable
