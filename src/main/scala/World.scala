@@ -70,6 +70,8 @@ class World( val height: Int, val depth: Int = 1) {
     val bench = new ObjectTemplate("Bench", "Table", fenceRequirement)
     val door = new ObjectTemplate("Door", "Door", fenceRequirement)
     val bed = new ObjectTemplate("Bed", "Bed", fenceRequirement)
+    val armorStand = new ObjectTemplate("Armor Stand", "ArmorStand", fenceRequirement)
+    val weaponStand = new ObjectTemplate("Weapon Stand", "WeaponStand", fenceRequirement)
 
     player.recipes += new Recipe(pallet)
     player.recipes += new Recipe(rh)
@@ -79,6 +81,8 @@ class World( val height: Int, val depth: Int = 1) {
     player.recipes += new Recipe(bench)
     player.recipes += new Recipe(door)
     player.recipes += new Recipe(bed)
+    player.recipes += new Recipe(armorStand)
+    player.recipes += new Recipe(weaponStand)
 
   val berry = new ObjectTemplate("Berry","Food")
   val seed = new ObjectTemplate("Seed","Food")
