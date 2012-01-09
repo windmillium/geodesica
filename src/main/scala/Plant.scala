@@ -23,7 +23,7 @@ class Plant(val species:PlantSpecies, val block:Block) extends WithID[Plant] wit
   def die = {
     block.plant = null
     Plant.all -= this
-    for( x <- 0 until 2)
+    for( x <- 0 until 10)
       deathTemplate.create.moveTo(block)
   }
 }
