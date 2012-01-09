@@ -24,7 +24,9 @@ abstract class Job(val queue: JobQueue, val profession:Profession = General, val
 
   def nextTask(mobile:Mobile):Option[Task] = {
     noTaskTimer += 1
-    if(mobile.unfullfilledObjects(requirements.consumableRequirements).size > 0) {
+    if(finished)
+      None
+    else if(mobile.unfullfilledObjects(requirements.consumableRequirements).size > 0) {
       Some(new FindObjectTask(mobile.unfullfilledObjects(requirements.consumableRequirements).head))
     } else if( requirements.distance >= 0 && mobile.block.distanceFrom(block) > requirements.distance) {
       MoveToTask(mobile,block,requirements.distance)
