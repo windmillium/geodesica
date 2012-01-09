@@ -1,13 +1,17 @@
 package net.geodesica
 
-trait Profession
+trait Profession {
+  def createJob(mobile:Mobile):Option[Job]
+}
 
 object Mining extends Profession {
+  def createJob(mobile:Mobile) = None
   override def toString = {
     "Mining"
   }
 }
 object Building extends Profession {
+  def createJob(mobile:Mobile) = None
   override def toString = {
     "Building"
   }
@@ -71,13 +75,11 @@ object Planning extends Profession {
 }
 
 object General extends Profession {
-  def doWork(mobile:Mobile) = {
+  def createJob(mobile:Mobile) = {
     if(mobile.objects.size > 0 && mobile.civilization.stockpiles.size > 0) {
-      val njob = new UnloadJob(mobile.civilization.stockpiles.head.blocks.head,mobile.queue)
-      njob.owner = Some(mobile)
-      mobile.job = Some(njob)
+      Some(new UnloadJob(mobile.civilization.stockpiles.head.blocks.head,mobile.queue))
+    } else
       None
-    }
   }
   override def toString = {
     "General"
