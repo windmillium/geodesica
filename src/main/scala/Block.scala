@@ -129,7 +129,7 @@ extends Attackable
   }
 
   def canAccept = {
-    health == 0// && (installedObject == null || installedObject.template.name != "Fence")
+    health == 0 && (installedObject == null || installedObject.template.name != "Fence")
   }
 
   def toJson = {
