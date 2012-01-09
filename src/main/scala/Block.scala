@@ -145,7 +145,8 @@ extends Attackable
   }
 
   override def toString = {
-    "%s,%s,%s".format(coord.x,coord.y,coord.z)
+    "%s,%s,%s".format(coord.x,coord.y,coord.z) +
+    " Plant" + plant
   }
 }
 
