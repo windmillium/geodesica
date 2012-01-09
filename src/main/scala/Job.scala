@@ -8,8 +8,30 @@ abstract class Job(val queue: JobQueue, val profession:Profession = General, val
   var noTaskTimer = 0
   def getObject = queue
   def work = ()
-  def finalTask:Option[Task] = None
+  def finalTask(mobile:Mobile):Option[Task]
   def finished = false
+  def update(mobile:Mobile):Option[Job] = {
+    if(finished) {
+      queue.all -= this
+      owner = None
+      None
+    } else if(noTaskTimer - mobile.jobTimer > 10){
+      None
+    } else {
+      Some(this)
+    }
+  }
+
+  def nextTask(mobile:Mobile):Option[Task] = {
+    noTaskTimer += 1
+    if(mobile.unfullfilledObjects(requirements.consumableRequirements).size > 0) {
+      Some(new FindObjectTask(mobile.unfullfilledObjects(requirements.consumableRequirements).head))
+    } else if( requirements.distance >= 0 && mobile.block.distanceFrom(block) > requirements.distance) {
+      MoveToTask(mobile,block,requirements.distance)
+    } else {
+      finalTask(mobile)
+    }
+  }
 
   def compare(that:Job) = noTaskTimer - that.noTaskTimer
 
@@ -21,7 +43,8 @@ abstract class Job(val queue: JobQueue, val profession:Profession = General, val
       ("y" -> block.coord.y) ~
       ("z" -> block.coord.z) ~
       ("type" -> profession.toString) ~
-      ("job" -> this.toString)
+      ("job" -> this.toString) ~
+      ("timer" -> noTaskTimer)
     compact(render(json))
   }
 }
@@ -48,7 +71,7 @@ class HarvestJob(val block:Block, queue:JobQueue) extends Job(queue, Gardening, 
   override def finished = {
     block.plant == null || block.plant.crop == 0
   }
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new HarvestTask(block.plant))
   }
 }
@@ -58,7 +81,7 @@ class PlantJob(val block:Block, queue:JobQueue) extends Job(queue, Gardening, ne
     block.plant != null
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new PlantTask(block))
   }
 }
@@ -68,8 +91,12 @@ class ClearJob(val block:Block, queue:JobQueue) extends Job(queue, WoodWorking, 
     block.plant == null
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new ClearTask(block.plant))
+  }
+
+  override def toString = {
+    "ClearJob("+id+"):" + block
   }
 }
 
@@ -80,7 +107,8 @@ class CraftJob(val block:Block, queue:JobQueue, val recipe:Recipe)
   override def finished = {
     newObject != null && newObject.health == 100
   }
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
+//    Some(new WaitTask(10))
     newObject = owner.get.craftInitial(recipe)
     owner.get.civilization.objects += newObject
     Some(new CraftTask(newObject))
@@ -95,7 +123,7 @@ class DigJob(val block:Block, queue:JobQueue) extends Job(queue, Mining, new Req
   override def finished:Boolean = {
     block.health == 0
   }
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new AttackTask(block))
   }
 }
@@ -104,7 +132,7 @@ class BuildJob(val block:Block, queue:JobQueue) extends Job(queue, Building, new
   override def finished = {
     block.health == 100
   }
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new BuildTask(block))
   }
 }
@@ -116,9 +144,9 @@ class InstallObjectJob(val block:Block, queue:JobQueue, ot:ObjectTemplate)
     block.installedObject != null && block.installedObject.template == ot
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     owner.get.install(ot,block)
-    None
+    Some(new WaitTask(1))
   }
 
   override def toString = {
@@ -134,7 +162,7 @@ class CleanBlockJob(val block:Block, queue:JobQueue)
     block.objects.size == 0
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new CleanBlockTask(block))
   }
 }
@@ -147,9 +175,9 @@ class UnloadJob(val block:Block, queue:JobQueue)
     owner.get.objects.size == 0
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     owner.get.objects.foreach(o => o.moveTo(block))
-    None
+    Some(new WaitTask(1))
   }
 }
 
@@ -171,7 +199,7 @@ class ZoneJob(kind:Symbol, val block:Block, desiredSize:Int, queue:JobQueue) ext
     !block.nearbyBlocks(desiredSize).flatten.exists(b => b.zone == null)
   }
 
-  override def finalTask = {
+  def finalTask(mobile:Mobile) = {
     Some(new ZoneTask(kind, block, desiredSize))
   }
 }

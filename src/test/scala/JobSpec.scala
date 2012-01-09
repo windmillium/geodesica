@@ -3,7 +3,9 @@ import org.scalatest.matchers.ShouldMatchers
 
 import net.geodesica._
 
-class FooJob(queue:JobQueue, val block:Block = new Block(new BlockMap,new Coord(0,0,0))) extends Job(queue) with WithID[Job]
+class FooJob(queue:JobQueue, val block:Block = new Block(new BlockMap,new Coord(0,0,0))) extends Job(queue) with WithID[Job] {
+  def finalTask(mobile:Mobile) = Some(new WaitTask(1))
+}
 class JobQueueSpec extends Spec with ShouldMatchers {
   describe("findJob") {
     it("should return the first open job") {

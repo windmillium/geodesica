@@ -81,56 +81,15 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
     val obj = objects.find(o => o.template == ot)
     obj match {
       case Some(obj) => {
-        block.mobiles.foreach(m => m.moveTo(block.nearbyBlocks(1).flatten.filter(_.canAccept).headOption))
         block.installedObject = obj
         obj.installed = block
         objects -= obj
+        println(block.mobiles)
+        val mobiles = block.mobiles.toList
+        mobiles.foreach(m => m.moveTo(block.nearbyBlocks(3).flatten.filter(_.canAccept).headOption))
+        println(block.mobiles)
       }
       case _ => ()
-    }
-  }
-
-  def assignJob(newJob:Option[Job]) = {
-    job match {
-      case None => ()
-      case Some(job) => job.owner = None
-    }
-    newJob match {
-      case None => ()
-      case Some(newJob) => {
-        newJob.owner = Some(this)
-        job = Some(newJob)
-        this.jobTimer = newJob.noTaskTimer
-      }
-    }
-  }
-
-  def createProfessionJob:Option[Job] = {
-    if(professions.contains(General)) {
-      General.doWork(this)
-    }
-
-    if(professions.contains(Planning)) {
-      Planning.createJob(this)
-    } else if(professions.contains(Crafting)) {
-      Crafting.createJob(this)
-    } else if(professions.contains(Gardening)) {
-      Gardening.createJob(this)
-    } else if(professions.contains(WoodWorking)) {
-      WoodWorking.createJob(this)
-    }
-    else
-      None
-  }
-
-  def findJob = {
-    this.job = queue.findJob(professions)
-    this.job match {
-      case Some(job) => {
-        job.owner = Some(this)
-        this.jobTimer = job.noTaskTimer
-      }
-      case None => this.assignJob(createProfessionJob)
     }
   }
 
@@ -152,50 +111,45 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
 
   def die = ()
 
-  def update = {
-    this.task match {
-      case Some(task) => {
-        this.task = task.nextStep(this)
+  def updateJob:Option[Job] = {
+    job.flatMap(_.update(this)).orElse(queue.findJob(professions).orElse(professions.headOption.flatMap(p => p.createJob(this))))
+  }
+
+  def updateTask:Option[Task] = {
+    task.flatMap(_.nextStep(this)).orElse(job.flatMap(_.nextTask(this)))
+  }
+
+  def assignJob(newJob:Option[Job]) = {
+    if(job != newJob){
+    job match {
+      case None => ()
+      case Some(job) => job.owner = None
+    }
+    job = newJob
+    newJob match {
+      case None => ()
+      case Some(nJob) => {
+        nJob.owner = Some(this)
+        this.jobTimer = nJob.noTaskTimer
       }
-      case None => {
-        this.job match {
-          case None => {
-            findJob
-            if(block != null) {
-              val rnd = new scala.util.Random
-              val x = rnd.nextInt(10) - 5
-              val y = rnd.nextInt(10) - 5
-              val newCoord = civilization.home.coord+(x,y,0)
-              val tBlock = block.blockAt(newCoord)
-              if(tBlock != None && this.job == None)
-                this.task = Some(new MoveToTask(this,tBlock.get,0))
-            }
-          }
+    }
+    }
+  }
+
+  def update = {
+    val job = updateJob
+    assignJob(job)
+    task = updateTask
+    /*
           case Some(job) => {
             job.noTaskTimer += 1
             if(job.noTaskTimer - jobTimer > 10) {
+              job.noTaskTimer = job.noTaskTimer * 10
               this.job = None
               job.owner = None
             } else
               this.task = nextTaskFor(job)
-          }
-        }
-      }
-    }
-  }
-
-  def nextTaskFor(job:Job) = {
-    if( job.finished ) {
-      job.queue.all -= job
-      this.job = None
-      None
-    } else if(unfullfilledObjects(job.requirements.consumableRequirements).size > 0) {
-      Some(new FindObjectTask(unfullfilledObjects(job.requirements.consumableRequirements).head))
-    } else if( job.requirements.distance >= 0 && block.distanceFrom(job.block) > job.requirements.distance) {
-      Some(new MoveToTask(this,job.block,job.requirements.distance))
-    } else {
-      job.finalTask
-    }
+    */
   }
 
   def moveTowards(nblock:Block) = {
@@ -210,8 +164,10 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
       move(0)
   }
 
-  def move( direction: Int ) = {
-    if(block != null){
+  def move( direction: Int ):Boolean = {
+    if(direction == -1)
+      false
+    else if(block != null){
       val add = direction match {
         case 0 => (0,1,0)
         case 1 => (1,0,0)
@@ -221,19 +177,22 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
       val nCoord = block.coord + add
 
       moveTo(block.blockAt(nCoord))
-    }
+    } else
+     false
   }
 
-  def moveTo(newBlock: Option[Block]) = {
+  def moveTo(newBlock: Option[Block]):Boolean = {
     newBlock match {
       case Some(nblock) => {
         if(nblock.canAccept){
           block.mobiles -= this
           nblock.mobiles += this
           block = nblock
-        }
+          true
+        } else
+          false
       }
-      case None => None
+      case None => false
     }
   }
 

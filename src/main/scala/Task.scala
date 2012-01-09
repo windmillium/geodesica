@@ -49,11 +49,12 @@ class CraftTask(obj:Object) extends Task {
 
 class ClearTask(plant:Plant) extends Task {
   def nextStep(mobile:Mobile) = {
-    mobile.clear(plant)
     if(plant.health < 1)
       None
-    else
+    else {
+      mobile.clear(plant)
       Some(this)
+    }
   }
 }
 
@@ -66,7 +67,7 @@ object HarvestTask {
 class HarvestTask(plant:Plant) extends Task {
   def nextStep(mobile:Mobile) = {
     if(mobile.block != plant.block)
-      Some(new MoveToTask(mobile, plant.block, 0))
+      MoveToTask(mobile, plant.block, 0)
     else if(plant.crop > 0) {
       plant.crop -= 1
       val obj = plant.cropTemplate.create
@@ -78,31 +79,41 @@ class HarvestTask(plant:Plant) extends Task {
   }
 }
 
-class MoveToTask(mobile:Mobile, block:Block, distance:Int) extends Task {
-  var path = (new AStarSearch[Block]).search(block,mobile.block)
-  if(path != null && path.size > 0)
-    path = path.drop(1)
+object MoveToTask {
+  def apply(mobile:Mobile, block:Block, distance:Int) = {
+    var path = new AStarSearch[Block].search(block,mobile.block)
+    if(path == null)
+      None
+    else {
+      path = path.dropRight(1)
+      path = path.drop(distance)
+      Some(new MoveToTask(mobile,block,distance,path))
+    }
+  }
+}
 
+class MoveToTask(mobile:Mobile, block:Block, distance:Int, var path:List[Block]) extends Task {
   def nextStep(mobile:Mobile):Option[Task] = {
 
-    if(path == null || path.size == 0) {
-      return None //Some(new WaitTask(10))
+    if(path.size == 0 || mobile.block.distanceFrom(block) < distance) {
+      return None
     }
 
     val dblock = path.last
     path = path.dropRight(1)
 
-    if(mobile.block.coord.x > dblock.coord.x)
-      mobile.move(3)
+    val direction:Int = if(mobile.block.coord.x > dblock.coord.x)
+      3
     else if(mobile.block.coord.x < dblock.coord.x)
-      mobile.move(1)
-
-    if(mobile.block.coord.y > dblock.coord.y)
-      mobile.move(2)
+      1
+    else if(mobile.block.coord.y > dblock.coord.y)
+      2
     else if(mobile.block.coord.y < dblock.coord.y)
-      mobile.move(0)
+      0
+    else
+      -1
 
-    if(mobile.block.distanceFrom(block) >= distance)
+    if(mobile.move(direction))
       Some(this)
     else
       None
@@ -118,7 +129,7 @@ class FindObjectTask(obj:ObjectTemplate) extends Task {
       relevantObjects.head.moveTo(mobile)
       None
     } else if(worldObjects.size > 0) {
-      Some(new MoveToTask(mobile,worldObjects.head.container.block, 0))
+      MoveToTask(mobile,worldObjects.head.container.block, 0)
     } else {
       None
     }
@@ -144,7 +155,8 @@ class ZoneTask(kind:Symbol, block:Block, size:Int) extends Task {
     val blocks = block.nearbyBlocks(size).flatten
     zone.blocks ++= blocks
     blocks.foreach(b => b.zone = zone)
-    zone.requirements.toList.map({case (b,Some(o)) => mobile.civilization.recipes.find(r => r.obj == o )}).flatten.foreach(r => new CraftJob(mobile.block,mobile.queue,r))
+    zone.requirements.toList.flatMap(r => r._2).map(o => mobile.civilization.recipes.find(r => r.obj == o )).flatten.foreach(r =>
+      new CraftJob(mobile.block,mobile.queue,r))
     zone.requirements.foreach({case (b,o) => new InstallObjectJob(b,mobile.queue, o.get)})
     None
   }
@@ -168,7 +180,7 @@ object PlantTask {
 class PlantTask(block:Block) extends Task {
   def nextStep(mobile:Mobile) = {
     if(block != mobile.block)
-      Some(new MoveToTask(mobile, block, 0 ))
+      MoveToTask(mobile, block, 0 )
     else {
       val plant = PlantSpecies("Bush").get.create(block)
       block.plant = plant
