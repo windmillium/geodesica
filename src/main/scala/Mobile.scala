@@ -137,19 +137,8 @@ class Mobile(species:MobileSpecies = new MobileSpecies("Mobile"))
   }
 
   def update = {
-    val job = updateJob
-    assignJob(job)
+    assignJob(updateJob)
     task = updateTask
-    /*
-          case Some(job) => {
-            job.noTaskTimer += 1
-            if(job.noTaskTimer - jobTimer > 10) {
-              job.noTaskTimer = job.noTaskTimer * 10
-              this.job = None
-              job.owner = None
-            } else
-              this.task = nextTaskFor(job)
-    */
   }
 
   def moveTowards(nblock:Block) = {
