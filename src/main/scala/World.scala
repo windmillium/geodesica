@@ -105,7 +105,9 @@ class World( val height: Int, val depth: Int = 1) {
     val blockActor = Actor.actorOf(new BlockMapActor(blockMap))
     val templateActor = Actor.actorOf[BuildingTemplateActor]
     val jobActor = Actor.actorOf(new JobActor(player.queue, blockMap))
+    val statusActor = Actor.actorOf(new StatusActor(player))
 
+    statusActor.start
     mobileActor.start
     blockActor.start
     templateActor.start

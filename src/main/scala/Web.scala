@@ -3,6 +3,27 @@ package net.geodesica
 import akka.actor.{Actor, ActorRef}
 import akka.camel.{Message, Consumer}
 
+class StatusDecorator(civilization:Civilization){
+  def toJson = {
+    import net.liftweb.json._
+    import net.liftweb.json.JsonDSL._
+
+    val json = ("food" -> civilization.objects.filter(o => o.template.name == "Berry").size.toString) ~
+      ("drink" -> "0")
+
+    compact(render(json))
+  }
+}
+
+class StatusActor(civilization:Civilization) extends Actor with Consumer {
+  def endpointUri = "jetty:http://localhost:8888/status/"+civilization.name
+
+  def receive = {
+    case msg: Message =>
+      self.reply(new StatusDecorator(civilization).toJson)
+  }
+}
+
 class MobileActor extends Actor with Consumer {
   def endpointUri = "jetty:http://localhost:8888/mobiles"
 
